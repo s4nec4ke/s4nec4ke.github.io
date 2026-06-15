@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hybrid variants — 4 версии</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geologica:wght@300..700&family=JetBrains+Mono:wght@300;400;500;600&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0A0E14;
+    --panel: #11161E;
+    --panel-hi: #1A2030;
+    --ink: #E8EBF0;
+    --ink-dim: #7A8595;
+    --ink-mute: #404B5A;
+    --border: #1E2530;
+    --border-hi: #2A3340;
+    --mint: #00F5A0;
+    --cyan: #00D9F5;
+    --magenta: #FF49AC;
+    --lemon: #FFE93D;
+    --amber: #FFB23D;
+    --coral: #FF6B5B;
+    --grad: linear-gradient(135deg, #00F5A0, #00D9F5, #FF49AC);
+  }
+
+  *{ box-sizing: border-box; margin: 0; padding: 0; }
+  body{
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Geologica', sans-serif;
+    font-size: 15px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    padding: 56px 28px;
+    overflow-x: hidden;
+  }
+  body::before{
+    content:"";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background:
+      radial-gradient(ellipse 50% 30% at 20% 0%, rgba(0,217,245,0.12), transparent 60%),
+      radial-gradient(ellipse 50% 35% at 90% 30%, rgba(0,245,160,0.08), transparent 60%),
+      radial-gradient(ellipse 40% 30% at 50% 90%, rgba(255,73,172,0.07), transparent 60%);
+  }
+  .wrap{
+    max-width: 1180px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+  }
+
+  .back{
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    border: 1px solid var(--border-hi);
+    border-radius: 999px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    color: var(--ink-dim);
+    text-decoration: none;
+    margin-bottom: 28px;
+    transition: border-color .2s, color .2s;
+  }
+  .back:hover{ color: var(--mint); border-color: var(--mint); }
+
+  header{
+    padding-bottom: 36px;
+    margin-bottom: 56px;
+    border-bottom: 1px solid var(--border);
+  }
+  .meta{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+    margin-bottom: 14px;
+  }
+  h1{
+    font-family: 'Geologica', sans-serif;
+    font-weight: 600;
+    font-size: clamp(40px, 6vw, 72px);
+    line-height: 0.95;
+    letter-spacing: -0.035em;
+  }
+  h1 .em{
+    background: var(--grad);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    font-style: italic;
+    font-weight: 500;
+  }
+  .lede{
+    margin-top: 18px;
+    font-size: 18px;
+    color: var(--ink-dim);
+    max-width: 70ch;
+    line-height: 1.5;
+  }
+  .lede em{
+    font-style: normal;
+    color: var(--ink);
+    font-weight: 500;
+  }
+  .lede .scribble{
+    font-family: 'Caveat', cursive;
+    font-weight: 700;
+    color: var(--lemon);
+    font-size: 22px;
+  }
+
+  .grid{
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
+  }
+
+  .card{
+    display: block;
+    padding: 28px 30px;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.012), transparent), var(--panel);
+    text-decoration: none;
+    color: var(--ink);
+    transition: all .25s cubic-bezier(.2,.7,.2,1);
+    position: relative;
+    overflow: hidden;
+  }
+  .card::before{
+    content:"";
+    position: absolute;
+    inset: 0;
+    border-radius: 16px;
+    padding: 1px;
+    background: var(--grad);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+            mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+            mask-composite: exclude;
+    opacity: 0;
+    transition: opacity .25s;
+    pointer-events: none;
+  }
+  .card:hover{ transform: translateY(-3px); }
+  .card:hover::before{ opacity: 0.8; }
+
+  .card-row{
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 18px;
+  }
+  .card-tag{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+  }
+  .card-tag b{ color: var(--mint); font-weight: 500; }
+  .card-arrow{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    color: var(--ink-mute);
+    transition: transform .2s, color .2s;
+  }
+  .card:hover .card-arrow{ color: var(--mint); transform: translate(3px,-3px); }
+
+  .card-title{
+    font-family: 'Geologica', sans-serif;
+    font-weight: 500;
+    font-size: 30px;
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+    margin-bottom: 6px;
+  }
+  .card-title em{
+    font-style: italic;
+    font-weight: 400;
+    background: var(--grad);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .card-sub{
+    font-family: 'Caveat', cursive;
+    font-weight: 700;
+    font-size: 18px;
+    color: var(--lemon);
+    margin-bottom: 16px;
+  }
+  .card-desc{
+    font-size: 14.5px;
+    line-height: 1.55;
+    color: var(--ink-dim);
+    margin-bottom: 16px;
+  }
+  .card-desc strong{ color: var(--ink); font-weight: 500; }
+
+  /* swatch row */
+  .swatch{
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .swatch span{
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .card-foot{
+    padding-top: 14px;
+    border-top: 1px dashed var(--border-hi);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    color: var(--ink-mute);
+    letter-spacing: 0.04em;
+  }
+  .card-foot .axis{ color: var(--ink-dim); }
+  .card-foot .axis b{ color: var(--mint); }
+
+  /* base card variant */
+  .card.base{
+    border-color: var(--border-hi);
+  }
+  .card.base .card-tag b{ color: var(--ink); }
+
+  /* sunrise variant decorations */
+  .card.sun .card-title em{ background: linear-gradient(135deg, #FFB23D, #FF6B5B, #F4D03F); -webkit-background-clip: text; background-clip: text; }
+  .card.sun .card-sub{ color: var(--amber); }
+  .card.sun:hover .card-arrow{ color: var(--amber); }
+
+  /* asymmetric */
+  .card.asy .card-sub{ color: var(--cyan); }
+
+  /* vibrant */
+  .card.vib .card-sub{ color: var(--magenta); }
+  .card.vib::after{
+    content: "✦ ✧ ✦";
+    position: absolute;
+    top: 16px;
+    right: 50px;
+    font-size: 14px;
+    color: var(--magenta);
+    opacity: 0.5;
+  }
+
+  .legend{
+    margin-top: 56px;
+    padding: 20px 24px;
+    border: 1px dashed var(--border-hi);
+    border-radius: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--ink-dim);
+    background: rgba(255,255,255,0.012);
+  }
+  .legend b{ color: var(--ink); }
+  .legend em{ color: var(--mint); font-style: normal; }
+
+  .foot{
+    margin-top: 56px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-mute);
+    letter-spacing: 0.08em;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  @media (max-width: 760px){
+    body{ padding: 28px 16px; }
+    .grid{ grid-template-columns: 1fr; }
+  }
+
+  @keyframes rise{
+    from{ opacity: 0; transform: translateY(20px); }
+    to{ opacity: 1; transform: translateY(0); }
+  }
+  header, .card, .legend{ animation: rise .8s cubic-bezier(.2,.7,.2,1) both; }
+  .card:nth-child(1){ animation-delay: .05s; }
+  .card:nth-child(2){ animation-delay: .12s; }
+  .card:nth-child(3){ animation-delay: .19s; }
+  .card:nth-child(4){ animation-delay: .26s; }
+  .legend{ animation-delay: .35s; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <a class="back" href="../index.html">← back to all prototypes</a>
+
+  <header>
+    <div class="meta">Hybrid · Variants · 2026</div>
+    <h1>Hybrid <em class="em">— 4 versions</em></h1>
+    <p class="lede">
+      Базовый <em>Hybrid</em> + три вариации, каждая меняет одну ось.
+      <span class="scribble">сравни ↓</span>
+      Что зашло — скажи, продолжим в эту сторону.
+    </p>
+  </header>
+
+  <div class="grid">
+
+    <a class="card base" href="../hybrid-dark.html" target="_blank">
+      <div class="card-row">
+        <span class="card-tag"><b>base</b> · точка отсчёта</span>
+        <span class="card-arrow">↗</span>
+      </div>
+      <h2 class="card-title">Hybrid <em>base</em></h2>
+      <div class="card-sub">mint + cyan + magenta gradient</div>
+      <p class="card-desc">Тёмный protocol-minimal с меми-акцентами: gm в шапке, sparkle ✦, scribble-комментарии Caveat'ом, vibe check, wagmi в footer. <strong>Тот самый Hybrid из основной матрицы.</strong></p>
+      <div class="swatch">
+        <span style="background:#0A0E14"></span>
+        <span style="background:#00F5A0"></span>
+        <span style="background:#00D9F5"></span>
+        <span style="background:#FF49AC"></span>
+        <span style="background:#FFE93D"></span>
+      </div>
+      <div class="card-foot">
+        <span class="axis"><b>baseline</b> · все три оси moderate</span>
+        <span>../hybrid-dark.html</span>
+      </div>
+    </a>
+
+    <a class="card sun" href="a-sunrise.html" target="_blank">
+      <div class="card-row">
+        <span class="card-tag">A · <b>палитра</b></span>
+        <span class="card-arrow">↗</span>
+      </div>
+      <h2 class="card-title">Sunrise <em>palette</em></h2>
+      <div class="card-sub">amber + coral + honey gradient</div>
+      <p class="card-desc">Та же раскладка и меми-уровень, но <strong>теплая палитра</strong>: warm brown-black фон, amber/coral/honey acid. Утренний crypto-vibe вместо «вечернего» DeFi. «first light · wagmi».</p>
+      <div class="swatch">
+        <span style="background:#0F0A06"></span>
+        <span style="background:#FFB23D"></span>
+        <span style="background:#FF6B5B"></span>
+        <span style="background:#F4D03F"></span>
+        <span style="background:#FF4D8B"></span>
+      </div>
+      <div class="card-foot">
+        <span class="axis">меняет: <b>цвет</b></span>
+        <span>a-sunrise.html</span>
+      </div>
+    </a>
+
+    <a class="card asy" href="b-asymmetric.html" target="_blank">
+      <div class="card-row">
+        <span class="card-tag">B · <b>раскладка</b></span>
+        <span class="card-arrow">↗</span>
+      </div>
+      <h2 class="card-title">Asymmetric <em>layout</em></h2>
+      <div class="card-sub">broken grid + sticky titles</div>
+      <p class="card-desc">Та же палитра и меми-уровень, но <strong>сломанная сетка</strong>: имя растягивается в две строки с offset, sticky-заголовки слева, кейсы смещены, огромные decorative номера на полях. Боковые rail-индикаторы.</p>
+      <div class="swatch">
+        <span style="background:#0A0E14"></span>
+        <span style="background:#00F5A0"></span>
+        <span style="background:#00D9F5"></span>
+        <span style="background:#FF49AC"></span>
+        <span style="background:#FFE93D"></span>
+      </div>
+      <div class="card-foot">
+        <span class="axis">меняет: <b>layout</b></span>
+        <span>b-asymmetric.html</span>
+      </div>
+    </a>
+
+    <a class="card vib" href="c-vibrant.html" target="_blank">
+      <div class="card-row">
+        <span class="card-tag">C · <b>меми-уровень</b></span>
+        <span class="card-arrow">↗</span>
+      </div>
+      <h2 class="card-title">Vibrant <em>meme</em></h2>
+      <div class="card-sub">more stickers, more scribble, more 🚀</div>
+      <p class="card-desc">Те же палитра и раскладка, но <strong>усиленный меми-аспект</strong>: "ser pls hire" sticker в hero, эмодзи на stats, sticker-pills с offset shadow, "ngmi" в topbar, dashed-рамка у vibe check, gigantic wagmi в footer. На грани, но контролируемо.</p>
+      <div class="swatch">
+        <span style="background:#0A0E14"></span>
+        <span style="background:#00F5A0"></span>
+        <span style="background:#FF49AC"></span>
+        <span style="background:#FFE93D"></span>
+        <span style="background:#FF3D6F"></span>
+      </div>
+      <div class="card-foot">
+        <span class="axis">меняет: <b>меми-уровень</b></span>
+        <span>c-vibrant.html</span>
+      </div>
+    </a>
+
+  </div>
+
+  <div class="legend">
+    // <b>контент во всех 4 одинаковый</b>. различия только в палитре, раскладке и меми-уровне.<br>
+    // если зайдёт ось из одного варианта — комбинируем (например, <em>sunrise palette + vibrant memes</em>).<br>
+    // финалист потом обернём в Astro, добавим RU, реальный PDF и Cal.com embed.
+  </div>
+
+  <div class="foot">
+    <span>4 hybrid variants · 1 content draft · MMXXVI</span>
+    <span>built in claude code · static HTML</span>
+  </div>
+
+</div>
+</body>
+</html>

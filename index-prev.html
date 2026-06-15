@@ -1,0 +1,2184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>andrey.eth — pm · gm</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geologica:wght,SLNT@300..700,-12..0&family=JetBrains+Mono:wght@300;400;500;600&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0A0E14;
+    --panel: #11161E;
+    --panel-hi: #1A2030;
+    --ink: #E8EBF0;
+    --ink-dim: #7A8595;
+    --ink-mute: #404B5A;
+    --border: #1E2530;
+    --border-hi: #2A3340;
+    --mint: #00F5A0;
+    --cyan: #00D9F5;
+    --magenta: #FF49AC;
+    --lemon: #FFE93D;
+    --rose: #FF3D6F;
+    --grad: linear-gradient(135deg, #00F5A0 0%, #00D9F5 50%, #FF49AC 100%);
+    --grad-flat: linear-gradient(135deg, #00F5A0, #00D9F5);
+  }
+
+  *{ box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body{
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Geologica', sans-serif;
+    font-weight: 400;
+    font-size: 15px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  body::before{
+    content:"";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background:
+      radial-gradient(ellipse 50% 30% at 20% 0%, rgba(0,217,245,0.12), transparent 60%),
+      radial-gradient(ellipse 50% 35% at 90% 30%, rgba(0,245,160,0.08), transparent 60%),
+      radial-gradient(ellipse 40% 30% at 50% 90%, rgba(255,73,172,0.07), transparent 60%);
+  }
+  body::after{
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background-image:
+      linear-gradient(to right, rgba(255,255,255,0.015) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255,255,255,0.015) 1px, transparent 1px);
+    background-size: 80px 80px;
+    mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+    -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+  }
+
+  /* floating sparkles — JS-spawned dots, same mechanic as panel backdrop */
+  #pg-sparks { position: fixed; inset: 0; pointer-events: none; z-index: 1; }
+  .pg-spark {
+    position: absolute; border-radius: 50%; pointer-events: none;
+    opacity: 0; will-change: transform, opacity;
+    animation: pg-rise var(--dur, 6s) var(--delay, 0s) ease-in-out infinite;
+  }
+  @keyframes pg-rise {
+    0%   { opacity: 0;    transform: translateY(0px)   translateX(0px); }
+    12%  { opacity: 0.7; }
+    50%  { opacity: 0.35; transform: translateY(-60px) translateX(var(--dx, 8px)); }
+    88%  { opacity: 0.55; }
+    100% { opacity: 0;    transform: translateY(-120px) translateX(calc(var(--dx, 8px) * 1.5)); }
+  }
+
+  /* TOP BAR */
+  .topbar{
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    background: rgba(10,14,20,0.7);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+  }
+  .topbar-l, .topbar-r{ display: flex; align-items: center; gap: 16px; }
+  .status{
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--ink-dim);
+  }
+  .dot{
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--mint);
+    box-shadow: 0 0 12px var(--mint), 0 0 4px var(--mint);
+    animation: pulse 2.4s ease-in-out infinite;
+  }
+  @keyframes pulse{
+    0%, 100%{ opacity: 1; transform: scale(1); }
+    50%{ opacity: 0.55; transform: scale(0.8); }
+  }
+  .status b{ color: var(--mint); font-weight: 500; letter-spacing: 0.04em; }
+  .gm-pill{
+    font-family: 'Caveat', cursive;
+    font-weight: 700;
+    font-size: 16px;
+    color: var(--lemon);
+    letter-spacing: 0.02em;
+  }
+  .gm-pill::before{ content: "🌅 "; font-family: sans-serif; font-size: 13px; }
+  .lang-toggle{
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    border: 1px solid var(--border-hi);
+    border-radius: 999px;
+    padding: 4px 6px;
+    background: rgba(255,255,255,0.02);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    letter-spacing: 0.06em;
+  }
+  .lang-btn{
+    background: none; border: none; cursor: pointer;
+    padding: 2px 7px; border-radius: 999px;
+    color: var(--ink-mute);
+    transition: color .2s, background .2s;
+    font-family: inherit; font-size: inherit; letter-spacing: inherit;
+  }
+  .lang-btn.active{
+    color: var(--ink);
+    background: rgba(255,255,255,0.07);
+  }
+  .lang-btn:not(.active):hover{ color: var(--ink-dim); }
+  .lang-sep{ color: var(--border-hi); }
+
+  .page{
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 56px 28px 80px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* HERO */
+  .hero{ padding: 24px 0 64px; }
+  .pretag{
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 14px;
+    border: 1px solid var(--border-hi);
+    border-radius: 999px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    color: var(--ink-dim);
+    letter-spacing: 0.04em;
+    margin-bottom: 36px;
+    background: rgba(255,255,255,0.015);
+  }
+  .pretag .micro{
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--cyan);
+    box-shadow: 0 0 8px var(--cyan);
+  }
+
+  .name{
+    font-family: 'Geologica', sans-serif;
+    font-weight: 600;
+    font-size: clamp(64px, 9.5vw, 152px);
+    line-height: 0.95;
+    letter-spacing: -0.045em;
+    color: var(--ink);
+    position: relative;
+  }
+  .name .last{
+    display: block;
+    background: var(--grad);
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    font-weight: 500;
+    animation: grad-shift 7s ease-in-out infinite;
+  }
+  .name .sparkle{
+    position: absolute;
+    top: 4px;
+    right: -2vw;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #FF49AC;
+    font-size: 0;
+    color: transparent;
+    animation: star-core 6s ease-in-out infinite;
+  }
+  .name .sparkle::before {
+    content: '';
+    position: absolute;
+    left: 50%; top: 50%;
+    transform: translate(-50%, -50%);
+    width: 2px;
+    height: 44px;
+    background: linear-gradient(180deg,
+      transparent 0%,
+      rgba(255,73,172,0.45) 22%,
+      rgba(255,73,172,0.85) 50%,
+      rgba(255,73,172,0.45) 78%,
+      transparent 100%);
+    border-radius: 99px;
+    filter: blur(1px);
+    animation: star-rays 6s ease-in-out infinite;
+  }
+  .name .sparkle::after {
+    content: '';
+    position: absolute;
+    left: 50%; top: 50%;
+    transform: translate(-50%, -50%);
+    width: 44px;
+    height: 2px;
+    background: linear-gradient(90deg,
+      transparent 0%,
+      rgba(255,73,172,0.45) 22%,
+      rgba(255,73,172,0.85) 50%,
+      rgba(255,73,172,0.45) 78%,
+      transparent 100%);
+    border-radius: 99px;
+    filter: blur(1px);
+    animation: star-rays 6s ease-in-out infinite;
+  }
+  @keyframes star-core {
+    0%, 100% {
+      box-shadow:
+        0 0 3px 1px rgba(255,73,172,0.6),
+        0 0 10px 3px rgba(255,73,172,0.25);
+    }
+    50% {
+      box-shadow:
+        0 0 6px 2px rgba(255,73,172,1),
+        0 0 22px 7px rgba(255,73,172,0.5);
+    }
+  }
+  @keyframes star-rays {
+    0%, 100% { opacity: 0.65; }
+    50%       { opacity: 1;    }
+  }
+  @keyframes grad-shift{
+    0%, 100%{ background-position: 0% 50%; }
+    50%{ background-position: 100% 50%; }
+  }
+
+  .tagline{ margin-top: 28px; font-size: 22px; line-height: 1.5; color: var(--ink-dim); font-weight: 300; max-width: 54ch; }
+  .tagline em{ font-style: normal; font-weight: 500; }
+  .c-mint{ color: var(--mint); }
+  .c-cyan{ color: var(--cyan); }
+  .c-magenta{ color: var(--magenta); font-style: normal; font-weight: 500; }
+  .tagline .scribble{ font-family: 'Caveat', cursive; font-weight: 700; color: var(--magenta); font-size: 25px; font-style: normal; }
+  .tl-spinner {
+    display: inline;
+    font-family: 'Geologica', sans-serif;
+    font-size: 22px;
+    font-weight: 300;
+    color: var(--ink-dim);
+    letter-spacing: 0.05em;
+    margin-left: 1px;
+  }
+  .tl-spinner span {
+    display: inline;
+    animation: type-dot 1.8s ease-in-out infinite;
+    opacity: 0;
+  }
+  .tl-spinner span:nth-child(2) { animation-delay: 0.3s; }
+  .tl-spinner span:nth-child(3) { animation-delay: 0.6s; }
+  @keyframes type-dot {
+    0%, 70%, 100% { opacity: 0; }
+    30%           { opacity: 1; }
+  }
+
+  /* HERO ID-CARD (v3 portrait) */
+  .hero-body{
+    display: flex;
+    align-items: flex-start;
+    gap: 40px;
+  }
+  .hero-body-left{ flex: 1 1 0; min-width: 0; }
+  .hero-id-card{
+    flex-shrink: 0;
+    width: 148px;
+    margin-top: 10px;
+    transform: rotate(1.8deg);
+    background: var(--panel);
+    border: 1px solid rgba(0,217,245,0.22);
+    border-radius: 13px;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.45), 0 0 24px rgba(0,217,245,0.08);
+    transition: transform .3s cubic-bezier(.2,.7,.2,1), box-shadow .3s ease;
+  }
+  .hero-id-card:hover{
+    transform: rotate(0deg) scale(1.03);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.55), 0 0 32px rgba(0,217,245,0.16);
+  }
+  .hero-id-card img{
+    aspect-ratio: 3/4;
+    object-fit: cover;
+    object-position: center 10%;
+    width: 100%;
+    display: block;
+  }
+  .hero-id-card-footer{
+    padding: 10px 12px;
+    border-top: 1px solid rgba(0,217,245,0.12);
+    background: rgba(0,217,245,0.03);
+  }
+  .hero-id-card-footer .name-label{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--ink-dim);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .hero-id-card-footer .role-label{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9.5px;
+    color: var(--cyan);
+    letter-spacing: 0.1em;
+    margin-top: 2px;
+  }
+  @media(max-width:720px){
+    .hero-id-card{ display: none; }
+  }
+
+  /* QUICK */
+  .quick{
+    margin-top: 44px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  .qcell{
+    background: var(--panel);
+    padding: 22px 24px;
+    transition: background .25s;
+  }
+  .qcell:hover{ background: var(--panel-hi); }
+  .qcell .l{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+    margin-bottom: 10px;
+  }
+  .qcell .v{
+    font-family: 'Geologica', sans-serif;
+    font-weight: 500;
+    font-size: 28px;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+  }
+  .qcell .v.m{ color: var(--mint); }
+  .qcell .v.c{ color: var(--cyan); }
+  .qcell .s{
+    margin-top: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-dim);
+  }
+
+  /* SECTION */
+  .sec{ margin-top: 64px; }
+  .sec-head{
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    padding-bottom: 18px;
+    margin-bottom: 28px;
+    border-bottom: 1px solid var(--border);
+  }
+  .sec-head h2{
+    font-family: 'Geologica', sans-serif;
+    font-weight: 500;
+    font-size: 22px;
+    letter-spacing: -0.012em;
+    color: var(--ink);
+  }
+  .sec-head .right{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    color: var(--ink-mute);
+    letter-spacing: 0.08em;
+  }
+  .sec-head .right b{ color: var(--ink-dim); font-weight: 400; }
+  .sec-head .right em{ color: var(--mint); font-style: normal; }
+
+  /* WORK CARDS */
+  .work-list{ display: grid; gap: 16px; }
+  .card{
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px 32px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.012), transparent);
+    transition: border-color .25s, background .25s, transform .25s;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+  }
+  .card::before{
+    content:"";
+    position: absolute;
+    inset: 0;
+    border-radius: 16px;
+    padding: 1px;
+    background: var(--grad);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+            mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+            mask-composite: exclude;
+    opacity: 0;
+    transition: opacity .25s;
+    pointer-events: none;
+  }
+  .card:hover{ transform: translateY(-2px); }
+  .card:hover::before{ opacity: 0.7; }
+
+  .card-top{
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 6px;
+  }
+  .card-title{
+    font-family: 'Geologica', sans-serif;
+    font-weight: 400;
+    font-size: 30px;
+    letter-spacing: -0.018em;
+    line-height: 1.1;
+    color: var(--ink);
+    text-shadow: 0 0 28px rgba(0,217,245,0.14), 0 0 8px rgba(0,217,245,0.06);
+  }
+  .card-title a{
+    color: inherit; text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: border-color .2s, color .2s;
+  }
+  .card-title a:hover{ color: var(--mint); border-color: var(--mint); }
+  .card-title .arrow{
+    margin-left: 8px;
+    font-size: 18px;
+    color: var(--ink-mute);
+    transition: transform .2s, color .2s;
+    display: inline-block;
+  }
+  .card-title a:hover .arrow{ transform: translate(2px, -2px); color: var(--mint); }
+  .card-meta{ display: flex; gap: 8px; align-items: center; }
+  .pill{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.08em;
+    color: var(--ink-dim);
+    padding: 4px 10px;
+    border: 1px solid var(--border-hi);
+    border-radius: 999px;
+    background: rgba(255,255,255,0.01);
+  }
+  .pill.live{ color: var(--mint); border-color: rgba(0,245,160,0.4); background: rgba(0,245,160,0.06); }
+  .pill.paused{ color: var(--cyan); border-color: rgba(0,217,245,0.4); background: rgba(0,217,245,0.06); }
+  .pill.wip{ color: var(--mint); border-color: rgba(0,245,160,0.4); background: rgba(0,245,160,0.06); }
+  .pill.shipped{ color: var(--magenta); border-color: rgba(255,73,172,0.4); background: rgba(255,73,172,0.06); }
+
+  .card-role{
+    font-size: 14px;
+    color: #A8B4C0;
+    font-weight: 300;
+    margin: 6px 0 18px;
+  }
+  .card-desc{
+    font-size: 15.5px;
+    line-height: 1.6;
+    color: #A8B4C0;
+    font-weight: 300;
+    max-width: 70ch;
+  }
+  .card-desc strong{ color: var(--ink); font-weight: 500; }
+  .card-desc .scribble{
+    font-family: 'Caveat', cursive;
+    font-style: italic;
+    font-weight: 700;
+    color: var(--magenta);
+    font-size: 18px;
+  }
+
+  .stats-row{
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px dashed var(--border-hi);
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 4px 12px;
+  }
+  .stat .l{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+    margin-bottom: 4px;
+  }
+  .stat .v{
+    font-family: 'Geologica', sans-serif;
+    font-weight: 500;
+    font-size: 18px;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+  }
+  .stat .v.m{ color: var(--mint); }
+  .stat .v.c{ color: var(--cyan); }
+  .stat .v.p{ color: var(--magenta); }
+
+  /* PRIOR */
+  .prior{
+    display: grid;
+    gap: 0;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  .prior .row{
+    padding: 18px 24px;
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    gap: 24px;
+    align-items: baseline;
+    border-bottom: 1px solid var(--border);
+    background: var(--panel);
+    transition: background .2s;
+  }
+  .prior .row:last-child{ border-bottom: none; }
+  .prior .row:hover{ background: var(--panel-hi); }
+  .prior .y{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--mint);
+    letter-spacing: 0.06em;
+  }
+  .prior .t{ font-size: 15.5px; color: #A8B4C0; }
+  .prior .t b{ color: var(--ink); font-weight: 500; }
+
+  /* CAPS */
+  .caps{
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+  }
+  .cap-card{
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 22px 24px;
+    background: var(--panel);
+  }
+  .cap-card h4{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--mint);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .cap-card h4::before{
+    content: ""; width: 6px; height: 6px; border-radius: 50%;
+    background: var(--mint);
+    box-shadow: 0 0 6px var(--mint);
+  }
+  .cap-card:nth-child(2) h4{ color: var(--cyan); }
+  .cap-card:nth-child(2) h4::before{ background: var(--cyan); box-shadow: 0 0 6px var(--cyan); }
+  .cap-card:nth-child(3) h4{ color: var(--magenta); }
+  .cap-card:nth-child(3) h4::before{ background: var(--magenta); box-shadow: 0 0 6px var(--magenta); }
+  .cap-card:nth-child(4) h4{ color: var(--lemon); }
+  .cap-card:nth-child(4) h4::before{ background: var(--lemon); box-shadow: 0 0 6px var(--lemon); }
+
+  .chips{ display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    padding: 4px 10px;
+    border: 1px solid var(--border-hi);
+    border-radius: 6px;
+    color: #A8B4C0;
+    background: rgba(255,255,255,0.015);
+    transition: background .15s, border-color .15s, color .15s;
+    cursor: default;
+  }
+  .chip:hover{
+    background: rgba(0,217,245,0.07);
+    border-color: rgba(0,217,245,0.35);
+    color: var(--ink);
+  }
+
+  /* VIBE STRIP — playful crypto-native moment */
+  .vibe{
+    margin: 64px 0 0;
+    border: 1px dashed var(--border-hi);
+    border-radius: 14px;
+    padding: 24px 28px;
+    background: linear-gradient(135deg, rgba(0,245,160,0.04), rgba(255,73,172,0.04));
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .vibe-l{
+    font-family: 'Caveat', cursive;
+    font-weight: 700;
+    font-size: 26px;
+    color: var(--ink);
+    line-height: 1.1;
+  }
+  .vibe-l span{
+    background: var(--grad-flat);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .vibe-r{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--ink-dim);
+    letter-spacing: 0.06em;
+  }
+
+  /* CONTACT */
+  .contact-shell{
+    margin-top: 64px;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 48px;
+    background:
+      radial-gradient(ellipse 60% 100% at 0% 0%, rgba(0,245,160,0.08), transparent 60%),
+      radial-gradient(ellipse 60% 100% at 100% 100%, rgba(255,73,172,0.08), transparent 60%),
+      var(--panel);
+    position: relative;
+    overflow: hidden;
+  }
+  .contact-shell h2{
+    font-family: 'Geologica', sans-serif;
+    font-weight: 500;
+    font-size: clamp(36px, 5vw, 56px);
+    letter-spacing: -0.025em;
+    line-height: 1.05;
+    margin-bottom: 18px;
+    color: var(--ink);
+  }
+  .contact-shell h2 span{
+    background: var(--grad);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .contact-shell .lede{
+    color: var(--ink-dim);
+    font-size: 17px;
+    max-width: 50ch;
+    margin-bottom: 32px;
+  }
+  .contact-shell .lede .scribble{
+    font-family: 'Caveat', cursive;
+    font-weight: 700;
+    color: var(--lemon);
+    font-size: 22px;
+  }
+  .dm-cta{ display:none; }
+  .dm-sticker{
+    display:inline-block; position:relative; padding:2px;
+    border-radius:100px;
+    background:linear-gradient(135deg,#00F5A0,#00D9F5,#00F5A0);
+    background-size:200% 200%;
+    transform:rotate(-4deg);
+    animation:gs1 3s linear infinite, fl1 3.5s ease-in-out infinite;
+    box-shadow:0 6px 28px rgba(0,245,160,.15);
+    margin-bottom:8px;
+    z-index:2;
+    left:-18px;
+    top:6px;
+  }
+  .dm-sticker-inner{
+    background:#0D1219; border-radius:100px;
+    padding:4px 13px 5px;
+    font-family:'Caveat',cursive; font-size:13px; font-weight:700; color:#E8EBF0;
+    white-space:nowrap;
+  }
+  .dm-sticker .s-arrow{ margin-left:4px; -webkit-text-stroke:0.6px currentColor; }
+  @keyframes gs1{ 0%{background-position:0% 50%} 100%{background-position:200% 50%} }
+  @keyframes fl1{ 0%,100%{transform:rotate(-4deg) translateY(0)} 50%{transform:rotate(-3deg) translateY(-6px)} }
+  @keyframes nd1{ 0%,100%{transform:translateY(0)} 50%{transform:translateY(4px)} }
+  .contact-grid{
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  .contact-grid a{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 20px;
+    border: 1px solid var(--border-hi);
+    border-radius: 12px;
+    background: rgba(255,255,255,0.02);
+    color: var(--ink);
+    text-decoration: none;
+    transition: border-color .2s, background .2s;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+  }
+  .contact-grid a:hover{ border-color: var(--mint); background: rgba(0,245,160,0.04); }
+  .contact-grid a .lbl{
+    font-size: 11px;
+    color: var(--ink-mute);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+    display: block;
+  }
+  .contact-grid a .val{ font-size: 15px; color: var(--ink); }
+  .contact-grid a:hover .val{ color: var(--mint); }
+
+  .cta-row{
+    margin-top: 36px;
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .btn{
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 22px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    letter-spacing: 0.06em;
+    text-decoration: none;
+    border-radius: 10px;
+    border: 1px solid var(--border-hi);
+    color: var(--ink);
+    background: rgba(255,255,255,0.02);
+    transition: all .2s;
+  }
+  .btn:hover{ border-color: var(--ink); background: rgba(255,255,255,0.06); }
+  .btn.primary{
+    background: var(--grad-flat);
+    color: #032018;
+    border-color: transparent;
+    font-weight: 600;
+  }
+  .btn.primary:hover{ filter: brightness(1.08); transform: translateY(-1px); }
+
+  /* FOOTER */
+  .foot{
+    margin-top: 64px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    color: var(--ink-mute);
+  }
+  .foot .wagmi{
+    font-family: 'Caveat', cursive;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--mint);
+    letter-spacing: 0;
+    text-transform: none;
+  }
+  .lang a{
+    color: var(--ink-mute);
+    text-decoration: none;
+    padding: 4px 10px;
+    border: 1px solid transparent;
+    border-radius: 6px;
+  }
+  .lang a.active{ color: var(--mint); border-color: var(--border-hi); background: rgba(0,245,160,0.04); }
+
+  /* CASE PANEL — slide-in */
+  .case-trigger{
+    margin-top: 24px;
+    padding: 14px 0 0;
+    border-top: 1px dashed var(--border-hi);
+    border-left: none; border-right: none; border-bottom: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: none;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    color: var(--mint);
+    cursor: pointer;
+    width: 100%;
+    text-align: left;
+    transition: color .2s;
+  }
+  .case-trigger:hover{ color: var(--cyan); }
+  .case-trigger .arr{ display: inline-block; transition: transform .2s; }
+  .case-trigger:hover .arr{ transform: translateX(6px); }
+
+  .case-backdrop{
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.65);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 99;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity .35s, visibility .35s;
+  }
+  body.panel-open .case-backdrop{ opacity: 1; visibility: visible; }
+  body.panel-open{ overflow: hidden; }
+
+  .case-panel{
+    position: fixed;
+    top: 0;
+    right: 0;
+    height: 100vh;
+    width: min(960px, 95vw);
+    background: var(--bg);
+    border-left: 1px solid var(--border-hi);
+    z-index: 100;
+    overflow-y: auto;
+    transform: translateX(48px) scale(0.96);
+    opacity: 0;
+    pointer-events: none;
+    transition: transform .48s cubic-bezier(.2,.7,.2,1), opacity .38s ease;
+    display: flex;
+    flex-direction: column;
+  }
+  .case-panel.open{ transform: translateX(0) scale(1); opacity: 1; pointer-events: auto; box-shadow: -22px 0 60px rgba(0,0,0,0.55); }
+  .case-panel::before{
+    content:"";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background:
+      radial-gradient(ellipse 60% 35% at 50% 0%, rgba(0,217,245,0.10), transparent 60%),
+      radial-gradient(ellipse 60% 35% at 50% 100%, rgba(255,73,172,0.07), transparent 60%);
+  }
+
+  .cp-head{
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 32px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(10,14,20,0.88);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+  .cp-meta{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+  }
+  .cp-meta b{ color: var(--mint); font-weight: 500; }
+  .cp-close{
+    width: 38px; height: 38px;
+    border: 1px solid var(--border-hi);
+    background: rgba(255,255,255,0.02);
+    color: var(--ink-dim);
+    border-radius: 999px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    line-height: 1;
+    transition: all .2s;
+    font-family: 'Geologica', sans-serif;
+  }
+  .cp-close:hover{
+    border-color: var(--magenta);
+    color: var(--magenta);
+    background: rgba(255,73,172,0.08);
+  }
+
+  .cp-content{
+    padding: 40px 36px 100px;
+    position: relative;
+    z-index: 1;
+  }
+  .cp-hero{
+    padding-bottom: 32px;
+    margin-bottom: 32px;
+    border-bottom: 1px solid var(--border);
+  }
+  .cp-tag{
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 12px;
+    border: 1px solid rgba(0,245,160,0.4);
+    border-radius: 999px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.1em;
+    color: var(--mint);
+    background: rgba(0,245,160,0.06);
+    margin-bottom: 18px;
+  }
+  .cp-tag.wip{ color: var(--cyan); border-color: rgba(0,217,245,0.4); background: rgba(0,217,245,0.06); }
+  .cp-tag.shipped{ color: var(--magenta); border-color: rgba(255,73,172,0.4); background: rgba(255,73,172,0.06); }
+
+  .cp-hero h2{
+    font-family: 'Geologica', sans-serif;
+    font-weight: 600;
+    font-size: clamp(36px, 5vw, 56px);
+    letter-spacing: -0.025em;
+    line-height: 1.1;
+    padding-bottom: 0.12em;
+    margin-bottom: 8px;
+    background: var(--grad);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .cp-role{
+    font-family: 'Geologica', sans-serif;
+    font-size: 18px;
+    color: var(--ink-dim);
+    margin-bottom: 14px;
+    line-height: 1.3;
+  }
+  .cp-link{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--cyan);
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: border-color .2s;
+  }
+  .cp-link:hover{ border-color: var(--cyan); }
+
+  .cp-section{ margin-bottom: 36px; }
+  .cp-section h3{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--cp-accent);
+    text-shadow: 0 0 16px var(--cp-accent), 0 0 32px var(--cp-accent);
+    margin-bottom: 16px;
+    padding-bottom: 0;
+    border-bottom: none;
+  }
+  .cp-section h3 .num{
+    color: rgba(255,255,255,0.28);
+    font-weight: 400;
+    margin-right: 10px;
+    text-shadow: none;
+  }
+  .cp-section p, .cp-section li{
+    font-family: 'Geologica', sans-serif;
+    font-size: 17px;
+    line-height: 1.75;
+    color: rgba(255,255,255,0.82);
+  }
+  .cp-section p{ margin-bottom: 12px; }
+  .cp-section p strong{ color: var(--ink); font-weight: 500; }
+  .cp-section ul{
+    list-style: none;
+    padding-left: 0;
+  }
+  .cp-section ul li{
+    padding-left: 22px;
+    position: relative;
+    margin-bottom: 10px;
+  }
+  .cp-section ul li::before{
+    content: "→";
+    position: absolute;
+    left: 0;
+    top: 0;
+    color: var(--cyan);
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .cp-section ul li strong{ color: var(--ink); font-weight: 500; }
+  .cp-section ol{
+    padding-left: 0;
+    counter-reset: cpol;
+    list-style: none;
+  }
+  .cp-section ol li{
+    margin-bottom: 10px;
+    padding-left: 36px;
+    position: relative;
+    counter-increment: cpol;
+  }
+  .cp-section ol li::before{
+    content: counter(cpol, decimal-leading-zero);
+    position: absolute;
+    left: 0;
+    top: 3px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--magenta);
+    letter-spacing: 0.04em;
+  }
+  .cp-section .scribble{
+    font-family: 'Caveat', cursive;
+    font-style: italic;
+    font-weight: 700;
+    color: var(--magenta);
+    font-size: 19px;
+    margin-left: 4px;
+  }
+
+  .cp-numbers{
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin-top: 4px;
+  }
+  .cp-num{
+    padding: 14px 16px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--panel);
+  }
+  .cp-num .l{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+    margin-bottom: 6px;
+  }
+  .cp-num .v{
+    font-family: 'Geologica', sans-serif;
+    font-weight: 500;
+    font-size: 22px;
+    color: var(--ink);
+    letter-spacing: -0.015em;
+  }
+  .cp-num .v.m{ color: var(--mint); }
+  .cp-num .v.c{ color: var(--cyan); }
+  .cp-num .v.p{ color: var(--magenta); }
+
+  .cp-callout{
+    margin: 18px 0;
+    padding: 16px 22px;
+    border-left: 3px solid var(--magenta);
+    background: rgba(255,73,172,0.05);
+    border-radius: 0 10px 10px 0;
+    font-family: 'Geologica', sans-serif;
+    font-weight: 400;
+    font-size: 15px;
+    color: var(--ink);
+    line-height: 1.6;
+  }
+
+  .cp-foot{
+    margin-top: 48px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-mute);
+    letter-spacing: 0.08em;
+  }
+  .cp-foot a{
+    color: var(--mint);
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: border-color .2s;
+  }
+  .cp-foot a:hover{ border-color: var(--mint); }
+
+  @media (max-width: 720px){
+    .case-panel{ width: 100vw; border-left: none; }
+    .cp-head{ padding: 16px 22px; }
+    .cp-content{ padding: 32px 22px 60px; }
+    .cp-numbers{ grid-template-columns: 1fr; }
+  }
+
+  @media (max-width: 880px){
+    .topbar{ padding: 12px 18px; flex-wrap: wrap; }
+    .page{ padding: 36px 18px 60px; }
+    .quick{ grid-template-columns: repeat(2, 1fr); }
+    .caps{ grid-template-columns: 1fr; }
+    .contact-grid{ grid-template-columns: 1fr; }
+    .contact-shell{ padding: 32px 24px; }
+    .prior .row{ grid-template-columns: 1fr; gap: 6px; }
+    .name .sparkle{ display: none; }
+  }
+
+  @keyframes rise{
+    from{ opacity: 0; transform: translateY(20px); }
+    to{ opacity: 1; transform: translateY(0); }
+  }
+  .pretag, .name, .tagline, .quick, .sec, .vibe, .contact-shell, .foot{
+    animation: rise .9s cubic-bezier(.2,.7,.2,1) both;
+  }
+  .name{ animation-delay: .05s; }
+  .tagline{ animation-delay: .15s; }
+  .quick{ animation-delay: .25s; }
+  .sec.s2{ animation-delay: .1s; }
+  .sec.s3{ animation-delay: .15s; }
+  .sec.s4{ animation-delay: .2s; }
+  .vibe{ animation-delay: .25s; }
+
+  /* ═══════════════════════════════════════════════
+     PANEL THEMING — per-project palettes
+  ═══════════════════════════════════════════════ */
+
+  /* ── MAGIC POT — bioluminescent ancient forest: jade cauldron glow + shadow violet + moonlit gold ── */
+  #case-magic-pot {
+    --cp-accent:  #1C9A6C;   /* bioluminescent jade — forest light */
+    --cp-accent2: #6B2FA0;   /* ancient shadow violet */
+    --cp-spark:   #F5D020;   /* moonlit gold */
+  }
+  #case-magic-pot::before {
+    background:
+      radial-gradient(ellipse 65% 50% at 50% 100%,  rgba(28,154,108,0.38),  transparent 62%),
+      radial-gradient(ellipse 70% 45% at 50% 0%,    rgba(107,47,160,0.32),  transparent 64%),
+      radial-gradient(ellipse 40% 30% at 88% 45%,   rgba(245,208,32,0.13),  transparent 52%) !important;
+  }
+  #case-magic-pot .cp-meta b           { color: var(--cp-accent); }
+  #case-magic-pot .cp-tag              { color: var(--cp-accent); border-color: rgba(28,154,108,0.42); background: rgba(28,154,108,0.07); }
+  #case-magic-pot .cp-hero h2          { background: linear-gradient(145deg, #1C9A6C 0%, #28D48C 38%, #6B2FA0 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  #case-magic-pot .cp-link             { color: var(--cp-spark); border-bottom-color: transparent; }
+  #case-magic-pot .cp-link:hover       { border-bottom-color: var(--cp-spark); }
+  #case-magic-pot .cp-section h3       { color: var(--cp-accent); border-bottom-color: rgba(28,154,108,0.20); }
+  #case-magic-pot .cp-section h3 .num  { color: rgba(107,47,160,0.52); }
+  #case-magic-pot .cp-section ul li::before { color: var(--cp-accent); }
+  #case-magic-pot .cp-section ol li::before { color: var(--cp-spark); }
+  #case-magic-pot .cp-callout          { border-left-color: var(--cp-accent); background: rgba(28,154,108,0.06); }
+  #case-magic-pot .cp-num .v.m         { color: var(--cp-accent); }
+  #case-magic-pot .cp-num .v.c         { color: var(--cp-spark); }
+  #case-magic-pot .cp-num .v.p         { color: var(--cp-accent2); }
+  #case-magic-pot .cp-foot a           { color: var(--cp-accent); }
+
+  /* banner */
+  .mp-intro {
+    display: flex;
+    gap: 28px;
+    align-items: flex-start;
+    margin-bottom: 4px;
+  }
+  .mp-intro .cp-section {
+    flex: 1 1 0;
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+  }
+  .mp-intro .mp-banner {
+    flex: 0 0 360px;
+    margin: 0;
+  }
+  @media (max-width: 720px) {
+    .mp-intro { flex-direction: column; }
+    .mp-intro .mp-banner { flex: 0 0 auto; width: 100%; }
+  }
+
+  .mp-banner {
+    margin: -4px 0 32px;
+    border-radius: 14px;
+    overflow: hidden;
+    border: 1px solid rgba(28,154,108,0.28);
+    box-shadow: 0 4px 52px rgba(28,154,108,0.15), 0 0 0 1px rgba(107,47,160,0.08) inset;
+  }
+  .mp-banner img { width: 100%; display: block; }
+
+  /* arts grid */
+  .mp-arts {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-top: 20px;
+  }
+  .mp-arts img {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+    border-radius: 10px;
+    border: 1px solid rgba(159,69,245,0.24);
+    transition: transform .22s cubic-bezier(.2,.7,.2,1), box-shadow .22s;
+  }
+  .mp-arts img:hover {
+    transform: scale(1.06) rotate(-1.5deg);
+    box-shadow: 0 10px 28px rgba(61,122,56,0.28), 0 0 0 1px rgba(61,122,56,0.45);
+    border-color: rgba(61,122,56,0.5);
+  }
+
+  /* floating sticker */
+  .mp-sticker {
+    width: 52px;
+    height: 52px;
+    object-fit: contain;
+    display: inline-block;
+    vertical-align: middle;
+    margin-left: 10px;
+    animation: mp-float 3.4s ease-in-out infinite;
+    filter: drop-shadow(0 4px 10px rgba(61,122,56,0.45));
+  }
+  @keyframes mp-float {
+    0%, 100% { transform: translateY(0) rotate(-4deg); }
+    50%       { transform: translateY(-7px) rotate(4deg); }
+  }
+
+  /* ── OQTACORE — electric blue, Swiss deep-tech ── */
+  #case-oqtacore {
+    --cp-accent:  #4DA8FF;
+    --cp-accent2: #82C4FF;
+  }
+  #case-oqtacore::before {
+    background:
+      radial-gradient(ellipse 70% 40% at 50% 0%,   rgba(77,168,255,0.11), transparent 65%),
+      radial-gradient(ellipse 60% 35% at 50% 100%,  rgba(30,80,200,0.09),  transparent 60%) !important;
+  }
+  #case-oqtacore .cp-meta b            { color: var(--cp-accent); }
+  #case-oqtacore .cp-tag.shipped       { color: var(--cp-accent); border-color: rgba(77,168,255,0.4); background: rgba(77,168,255,0.07); }
+  #case-oqtacore .cp-hero h2           { background: linear-gradient(135deg, var(--cp-accent2), var(--cp-accent)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  #case-oqtacore .cp-link              { color: var(--cp-accent2); }
+  #case-oqtacore .cp-section h3        { color: var(--cp-accent); border-bottom-color: rgba(77,168,255,0.18); }
+  #case-oqtacore .cp-section h3 .num   { color: rgba(77,168,255,0.38); }
+  #case-oqtacore .cp-section ul li::before { color: var(--cp-accent2); }
+  #case-oqtacore .cp-section ol li::before { color: var(--cp-accent); }
+  #case-oqtacore .cp-callout           { border-left-color: var(--cp-accent); background: rgba(77,168,255,0.06); }
+  #case-oqtacore .cp-num .v.m          { color: var(--cp-accent); }
+  #case-oqtacore .cp-num .v.c          { color: var(--cp-accent2); }
+  #case-oqtacore .cp-foot a            { color: var(--cp-accent); }
+
+  /* tech strip */
+  .oq-strip {
+    display: flex;
+    gap: 0;
+    margin: -4px 0 32px;
+    border: 1px solid rgba(77,168,255,0.18);
+    border-radius: 8px;
+    overflow: hidden;
+    background: rgba(77,168,255,0.03);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: rgba(77,168,255,0.65);
+  }
+  .oq-strip span {
+    flex: 1;
+    padding: 10px 14px;
+    border-right: 1px solid rgba(77,168,255,0.12);
+    white-space: nowrap;
+  }
+  .oq-strip span:last-child { border-right: none; }
+
+  /* ── AI JOBSEARCH — Claude orange/coral ── */
+  #case-ai-jobsearch {
+    --cp-accent:  #E8793A;
+    --cp-accent2: #F5A05A;
+  }
+  #case-ai-jobsearch::before {
+    background:
+      radial-gradient(ellipse 70% 40% at 50% 0%,   rgba(232,121,58,0.13), transparent 65%),
+      radial-gradient(ellipse 60% 35% at 50% 100%,  rgba(245,160,90,0.08), transparent 60%) !important;
+  }
+  #case-ai-jobsearch .cp-meta b            { color: var(--cp-accent); }
+  #case-ai-jobsearch .cp-tag.wip           { color: var(--cp-accent); border-color: rgba(232,121,58,0.4); background: rgba(232,121,58,0.07); }
+  #case-ai-jobsearch .cp-hero h2           { background: linear-gradient(135deg, var(--cp-accent), var(--cp-accent2)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  #case-ai-jobsearch .cp-link              { color: var(--cp-accent2); border-bottom-color: transparent; }
+  #case-ai-jobsearch .cp-link:hover        { border-bottom-color: var(--cp-accent2); }
+  #case-ai-jobsearch .cp-section h3        { color: var(--cp-accent); border-bottom-color: rgba(232,121,58,0.18); }
+  #case-ai-jobsearch .cp-section h3 .num   { color: rgba(232,121,58,0.38); }
+  #case-ai-jobsearch .cp-section ul li::before { color: var(--cp-accent2); }
+  #case-ai-jobsearch .cp-callout           { border-left-color: var(--cp-accent); background: rgba(232,121,58,0.06); }
+  #case-ai-jobsearch .cp-num .v.m          { color: var(--cp-accent); }
+  #case-ai-jobsearch .cp-num .v.c          { color: var(--cp-accent2); }
+  #case-ai-jobsearch .cp-foot a            { color: var(--cp-accent); }
+
+  /* pipeline image */
+  .aj-pipeline {
+    margin-top: 24px;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid rgba(232,121,58,0.22);
+    box-shadow: 0 4px 40px rgba(232,121,58,0.1);
+  }
+  .aj-pipeline img { width: 100%; display: block; }
+
+  @media (max-width: 720px) {
+    .mp-arts { grid-template-columns: repeat(2, 1fr); }
+    .oq-strip { flex-wrap: wrap; }
+    .oq-strip span { border-right: none; border-bottom: 1px solid rgba(77,168,255,0.12); flex: none; width: 100%; }
+    .oq-strip span:last-child { border-bottom: none; }
+  }
+
+  /* ── BACKDROP SPARKLES ── */
+  .bd-spark {
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+    opacity: 0;
+    will-change: transform, opacity;
+    animation: bd-rise var(--dur, 5s) var(--delay, 0s) ease-in-out infinite;
+  }
+  @keyframes bd-rise {
+    0%   { opacity: 0;    transform: translateY(0px)   translateX(0px); }
+    12%  { opacity: 0.9; }
+    50%  { opacity: 0.5;  transform: translateY(-55px) translateX(var(--dx, 10px)); }
+    88%  { opacity: 0.8; }
+    100% { opacity: 0;    transform: translateY(-110px) translateX(calc(var(--dx, 10px) * 1.6)); }
+  }
+
+  /* ═══════════════════════════════════════════════
+     MAIN PAGE THEME SHIFT — reacts to open panel
+  ═══════════════════════════════════════════════ */
+
+  /* Colour tint layer — above page content (z:1), below backdrop (z:99) */
+  .page-tint {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 2;
+    opacity: 0;
+    background: transparent;
+    transition: opacity 0.6s ease, background 0.6s ease;
+  }
+  body.theme-magic-pot .page-tint {
+    opacity: 1;
+    background:
+      radial-gradient(ellipse 90%  60% at 0%   0%,    rgba(107,47,160,0.20),  transparent 55%),
+      radial-gradient(ellipse 70%  55% at 100% 100%,   rgba(28,154,108,0.17),  transparent 52%),
+      radial-gradient(ellipse 45%  35% at 45%  55%,   rgba(245,208,32,0.05),  transparent 48%);
+  }
+  body.theme-oqtacore .page-tint {
+    opacity: 1;
+    background:
+      radial-gradient(ellipse 100% 70% at 0%   0%,   rgba(77,168,255,0.20),  transparent 58%),
+      radial-gradient(ellipse 80%  60% at 100% 100%,  rgba(30,80,200, 0.13),  transparent 55%);
+  }
+  body.theme-ai-jobsearch .page-tint {
+    opacity: 1;
+    background:
+      radial-gradient(ellipse 100% 70% at 0%   0%,   rgba(232,121,58,0.22), transparent 58%),
+      radial-gradient(ellipse 80%  60% at 100% 100%,  rgba(245,160,90,0.14), transparent 55%);
+  }
+
+  /* Backdrop gets tinted — most visible effect since it covers the whole page */
+  .case-backdrop { transition: background 0.5s ease, opacity .35s, visibility .35s; }
+  body.theme-magic-pot    .case-backdrop { background: rgba(3,8,14,  0.85); }
+  body.theme-oqtacore     .case-backdrop { background: rgba(0, 12,45, 0.75); }
+  body.theme-ai-jobsearch .case-backdrop { background: rgba(45,15,0, 0.75); }
+
+  /* Panel left edge glow — changes with theme */
+  .case-panel { transition: transform .48s cubic-bezier(.2,.7,.2,1), opacity .38s ease, border-left-color 0.4s ease, box-shadow 0.4s ease; }
+  body.theme-magic-pot    .case-panel.open { border-left-color: rgba(28,154,108,0.55); box-shadow: -28px 0 70px rgba(28,154,108,0.20), -4px 0 0 rgba(107,47,160,0.16); }
+  body.theme-oqtacore     .case-panel.open { border-left-color: rgba(77,168,255,0.55);  box-shadow: -28px 0 70px rgba(77,168,255,0.18),  -4px 0 0 rgba(77,168,255,0.12);  }
+  body.theme-ai-jobsearch .case-panel.open { border-left-color: rgba(232,121,58,0.55);  box-shadow: -28px 0 70px rgba(232,121,58,0.18),  -4px 0 0 rgba(232,121,58,0.12);  }
+
+  /* Topbar dot — colour & glow shift */
+  .dot { transition: background-color 0.5s ease, box-shadow 0.5s ease; }
+  body.theme-magic-pot    .dot { background: #1C9A6C; box-shadow: 0 0 14px #1C9A6C, 0 0 5px #1C9A6C; }
+  body.theme-oqtacore     .dot { background: #4DA8FF; box-shadow: 0 0 14px #4DA8FF, 0 0 5px #4DA8FF; }
+  body.theme-ai-jobsearch .dot { background: #E8793A; box-shadow: 0 0 14px #E8793A, 0 0 5px #E8793A; }
+
+  /* "open_to_work" label */
+  .status b { transition: color 0.5s ease; }
+  body.theme-magic-pot    .status b { color: #1C9A6C; }
+  body.theme-oqtacore     .status b { color: #4DA8FF; }
+  body.theme-ai-jobsearch .status b { color: #E8793A; }
+
+  /* Topbar bottom border */
+  .topbar { transition: border-color 0.5s ease; }
+  body.theme-magic-pot    .topbar { border-bottom-color: rgba(28,154,108,0.35); }
+  body.theme-oqtacore     .topbar { border-bottom-color: rgba(77,168,255,0.35);  }
+  body.theme-ai-jobsearch .topbar { border-bottom-color: rgba(232,121,58,0.35);  }
+
+  /* "gm anon" pill */
+  .gm-pill { transition: color 0.5s ease; }
+  body.theme-magic-pot    .gm-pill { color: #F5D020; }
+  body.theme-oqtacore     .gm-pill { color: #82C4FF; }
+  body.theme-ai-jobsearch .gm-pill { color: #F5A05A; }
+
+  /* ── lightbox ── */
+  #lb {
+    position: fixed; inset: 0; z-index: 200;
+    background: rgba(0,0,0,0.90);
+    backdrop-filter: blur(14px);
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; visibility: hidden;
+    transition: opacity .28s ease, visibility .28s ease;
+    cursor: zoom-out;
+  }
+  #lb.open { opacity: 1; visibility: visible; }
+  #lb img {
+    max-width: 90vw; max-height: 90vh;
+    border-radius: 12px;
+    box-shadow: 0 32px 90px rgba(0,0,0,0.75);
+    transform: scale(0.93);
+    transition: transform .32s cubic-bezier(.2,.7,.2,1);
+    cursor: default;
+  }
+  #lb.open img { transform: scale(1); }
+  .mp-arts img, .aj-pipeline img { cursor: zoom-in; }
+
+  .corner-gnome {
+    position: fixed;
+    bottom: -18px;
+    right: 28px;
+    width: 144px;
+    height: 144px;
+    object-fit: contain;
+    object-position: bottom;
+    transform: scaleX(-1);
+    pointer-events: none;
+    z-index: 10;
+    opacity: 0.85;
+    filter: drop-shadow(0 4px 12px rgba(0,0,0,0.5));
+  }
+
+  /* ── LANGUAGE SWITCH ── */
+  .lang-ru { display: none; }
+  html[lang="ru"] .lang-ru { display: revert; }
+  html[lang="ru"] .lang-en { display: none; }
+</style>
+</head>
+<body>
+
+<div class="page-tint" aria-hidden="true"></div>
+<img src="projects/magic-pot/assets/stickers/glasses.png" class="corner-gnome" aria-hidden="true" alt="">
+
+<div id="pg-sparks"></div>
+
+<div class="topbar">
+  <div class="topbar-l">
+    <span class="status"><span class="dot"></span><b>open_to_work</b></span>
+  </div>
+  <div class="topbar-r">
+    <div class="lang-toggle">
+      <button class="lang-btn active" data-lang="en">EN</button>
+      <span class="lang-sep">·</span>
+      <button class="lang-btn" data-lang="ru">RU</button>
+    </div>
+  </div>
+</div>
+
+<main class="page">
+
+  <section class="hero">
+    <div class="pretag">
+      <span class="micro"></span><span data-en="pm / bizdev · web3 · montenegro" data-ru="пм / биздев · web3 · черногория">pm / bizdev · web3 · montenegro</span>
+    </div>
+    <div class="hero-body">
+      <div class="hero-body-left">
+        <h1 class="name">
+          <span data-en="Andrey" data-ru="Андрей">Andrey</span>
+          <span class="last"><span data-en="Evdokimov" data-ru="Евдокимов">Evdokimov</span><span class="sparkle">✦</span></span>
+        </h1>
+        <p class="tagline" data-trans="tagline">
+          Shipped a mini-app to <em class="c-mint">10,000 active users</em> on TON.
+          <em class="c-cyan">$400K Web3 delivery</em> with a 7-dev team.
+          And <em class="c-magenta">a self-built AI agent</em> doing my job search<span class="tl-spinner" aria-hidden="true"><span>.</span><span>.</span><span>.</span></span>
+        </p>
+      </div>
+      <div class="hero-id-card">
+        <img src="assets/photo.png" alt="Andrey Evdokimov">
+        <div class="hero-id-card-footer">
+          <div class="name-label">Andrey E.</div>
+          <div class="role-label">PM · Web3</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="quick">
+      <div class="qcell">
+        <div class="l" data-en="years_in" data-ru="опыт_работы">years_in</div>
+        <div class="v m" data-en="5 years" data-ru="5 лет">5 years</div>
+        <div class="s" data-en="since 2021" data-ru="с 2021 года">since 2021</div>
+      </div>
+      <div class="qcell">
+        <div class="l" data-en="projects" data-ru="проекты">projects</div>
+        <div class="v">17+</div>
+        <div class="s" data-en="shipped / managed" data-ru="запустил · управлял">shipped / managed</div>
+      </div>
+      <div class="qcell">
+        <div class="l" data-en="largest_budget" data-ru="наибольший_бюджет">largest_budget</div>
+        <div class="v m">$400K</div>
+        <div class="s" data-en="7-dev team" data-ru="команда из 7 разработчиков">7-dev team</div>
+      </div>
+      <div class="qcell">
+        <div class="l" data-en="partnerships" data-ru="партнёрства">partnerships</div>
+        <div class="v c">50+</div>
+        <div class="s" data-en="projects · communities" data-ru="проекты · комьюнити">projects · communities</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec s2">
+    <div class="sec-head">
+      <h2 data-en="Selected work" data-ru="Избранные работы">Selected work</h2>
+      <div class="right"><b>03</b> entries · <em>sorted: desc</em></div>
+    </div>
+
+    <div class="work-list">
+
+      <article class="card" data-case="magic-pot">
+        <div class="card-top">
+          <h3 class="card-title">magic pot</h3>
+          <div class="card-meta">
+            <span class="pill paused" data-en="paused" data-ru="пауза">paused</span>
+            <span class="pill">2024–2025</span>
+            <span class="pill" data-en="founder" data-ru="основатель">founder</span>
+          </div>
+        </div>
+        <div class="card-role" data-en="Decentralised SocialFi mini-app on TON — Telegram Mini App + smart contract" data-ru="Децентрализованный socialfi miniapp на TON (TMA + смартконтракт)">Decentralised SocialFi mini-app on TON — Telegram Mini App + smart contract</div>
+        <p class="card-desc lang-en">
+          Shipped a Telegram Mini App letting users create decentralised prize pools with custom game
+          mechanics via smart contract. Zero to <strong>10,000 active users</strong> on a $15K budget
+          with a 6-person team. Closed 20+ partnerships with a combined audience of 1M+. Completed
+          the TON Foundation ecosystem accelerator and received a grant <span class="scribble">✦</span>
+        </p>
+        <p class="card-desc lang-ru">
+          Запустил миниапп в телеграме с возможностью децентрализованно создавать призовые пулы
+          с кастомными игровыми механиками через смартконтракт. С нуля до <strong>10 000 активных
+          пользователей</strong> с бюджетом $15K и командой из 6 человек. Заключил 20+ партнёрств
+          с совокупной аудиторией 1M+. Прошёл экосистемный акселератор от TON Foundation
+          и получил грант <span class="scribble">✦</span>
+        </p>
+        <div class="stats-row">
+          <div class="stat"><div class="l" data-en="users" data-ru="пользователи">users</div><div class="v m">10,000</div></div>
+          <div class="stat"><div class="l" data-en="mau" data-ru="mau">mau</div><div class="v">~1,000</div></div>
+          <div class="stat"><div class="l" data-en="budget" data-ru="бюджет">budget</div><div class="v">$15K</div></div>
+          <div class="stat"><div class="l" data-en="partners" data-ru="партнёры">partners</div><div class="v p">20+</div></div>
+          <div class="stat"><div class="l" data-en="txns" data-ru="транзакции">txns</div><div class="v c">25,000+</div></div>
+          <div class="stat"><div class="l" data-en="pools" data-ru="пулы">pools</div><div class="v">88</div></div>
+        </div>
+      </article>
+
+      <article class="card" data-case="oqtacore">
+        <div class="card-top">
+          <h3 class="card-title">oqtacore(pm)</h3>
+          <div class="card-meta">
+            <span class="pill shipped" data-en="delivered" data-ru="сдан">delivered</span>
+            <span class="pill">2025–2026</span>
+            <span class="pill" data-en="analyst · pm" data-ru="аналитик · pm">analyst · pm</span>
+          </div>
+        </div>
+        <div class="card-role" data-en="Discovery &amp; delivery — DeFi, RWA, mining, DePIN" data-ru="Дискавери и деливери — DeFi, RWA, майнинг, DePIN">Discovery &amp; delivery — DeFi, RWA, mining, DePIN</div>
+        <p class="card-desc lang-en">
+          Ran discovery and assessment for 13 major clients — from JTBD interviews to scopes,
+          budgets, roadmaps. Owned the agency’s largest contract — a mining monitoring
+          platform with a <strong>7-developer team</strong> and a <strong>$400K budget</strong>.
+          Closed three upsells including a $200K follow-up.
+        </p>
+        <p class="card-desc lang-ru">
+          Провёл дискавери и оценку для 13 крупных клиентов — от JTBD-интервью до скоупов,
+          бюджетов, роадмапов. Вёл крупнейший контракт агентства — платформу мониторинга майнинга
+          с <strong>командой из 7 разработчиков</strong> и <strong>бюджетом $400K</strong>.
+          Закрыл три апсейла, включая повторный контракт на $200K.
+        </p>
+        <div class="stats-row">
+          <div class="stat"><div class="l" data-en="discoveries" data-ru="дискавери">discoveries</div><div class="v m">13</div></div>
+          <div class="stat"><div class="l" data-en="team_led" data-ru="команда">team_led</div><div class="v">7 devs</div></div>
+          <div class="stat"><div class="l" data-en="largest" data-ru="крупнейший">largest</div><div class="v m">$400K</div></div>
+          <div class="stat"><div class="l" data-en="upsells" data-ru="апселлы">upsells</div><div class="v p">3</div></div>
+          <div class="stat"><div class="l" data-en="follow_up" data-ru="доп. контракт">follow_up</div><div class="v c">+$200K</div></div>
+        </div>
+      </article>
+
+      <article class="card" data-case="ai-jobsearch">
+        <div class="card-top">
+          <h3 class="card-title">jobsearch(ai)</h3>
+          <div class="card-meta">
+            <span class="pill wip" data-en="building" data-ru="в работе">building</span>
+            <span class="pill">2026</span>
+            <span class="pill" data-en="side project" data-ru="пет-проджект">side project</span>
+          </div>
+        </div>
+        <div class="card-role" data-en="A personal Claude Code agent for the rest of this job hunt" data-ru="Персональный Claude Code агент для поиска работы">A personal Claude Code agent for the rest of this job hunt</div>
+        <p class="card-desc lang-en">
+          Vacancies are parsed from Telegram and filtered by keywords, then auto-scored against the
+          user profile — qualifying ones land in a CSV with tailored CV recommendations and a draft
+          outreach message. HR dialogue is tracked, and when an interview is booked the agent
+          analyses the company, the role, and generates prep materials.
+          <strong>The entire pipeline runs automatically every day.</strong>
+        </p>
+        <p class="card-desc lang-ru">
+          Вакансии парсятся из телеграма и проходят фильтр по ключевым словам, затем автоматически
+          оцениваются по профилю пользователя — подходящие попадают в таблицу. Скилл создаёт
+          карточку вакансии и черновик сообщения HR. Диалог с HR отслеживается, а перед интервью
+          анализирует позицию и готовит к звонку.
+          <strong>Весь пайплайн запускается автоматически каждый день.</strong>
+        </p>
+        <div class="stats-row">
+          <div class="stat"><div class="l" data-en="vacancies" data-ru="вакансии">vacancies</div><div class="v m">137+</div></div>
+          <div class="stat"><div class="l" data-en="applications" data-ru="отклики">applications</div><div class="v">87</div></div>
+          <div class="stat"><div class="l" data-en="interviews" data-ru="интервью">interviews</div><div class="v p">16</div></div>
+          <div class="stat"><div class="l" data-en="time_saved" data-ru="экономия">time_saved</div><div class="v c" data-en="~3h/day" data-ru="~3ч/день">~3h/day</div></div>
+          <div class="stat"><div class="l" data-en="stack" data-ru="стек">stack</div><div class="v">Python · Telethon</div></div>
+          <div class="stat"><div class="l" data-en="orchestration" data-ru="оркестрация">orchestration</div><div class="v c">Claude Code</div></div>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <section class="sec s3">
+    <div class="sec-head">
+      <h2 data-en="Before that" data-ru="До этого">Before that</h2>
+      <div class="right"><b>2021</b> — 2024</div>
+    </div>
+
+    <div class="prior">
+      <div class="row">
+        <span class="y">2022 — 2024</span>
+        <span class="t">
+          <span class="lang-en"><b>Business Developer</b>, GGEM Launcher — 30+ GameFi partnerships, listing, user scenarios, white paper, tokenomics design</span>
+          <span class="lang-ru"><b>Business Developer</b>, GGEM Launcher — 30+ GameFi партнёрств, листинг, пользовательские сценарии, white paper, токеномика</span>
+        </span>
+      </div>
+      <div class="row">
+        <span class="y">2021 — 2024</span>
+        <span class="t">
+          <span class="lang-en"><b>Researcher</b> — Dune dashboards and on-chain research across TON · Ethereum · Solana · Avalanche · Arbitrum · Berachain · Oasys</span>
+          <span class="lang-ru"><b>Researcher</b> — Dune-дэшборды и on-chain аналитика: TON · Ethereum · Solana · Avalanche · Arbitrum · Berachain · Oasys</span>
+        </span>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec s4">
+    <div class="sec-head">
+      <h2 data-en="Capabilities" data-ru="Навыки">Capabilities</h2>
+      <div class="right" data-en="tagged · grouped" data-ru="теги · группы">tagged · grouped</div>
+    </div>
+
+    <div class="caps">
+      <div class="cap-card">
+        <h4 data-en="product" data-ru="продукт">product</h4>
+        <div class="chips">
+          <span class="chip">AARRR</span><span class="chip">RICE</span><span class="chip">JTBD</span>
+          <span class="chip">roadmaps</span><span class="chip">user stories</span>
+          <span class="chip">user interviews</span>
+          <span class="chip">scrum</span><span class="chip">kanban</span>
+          <span class="chip">notion</span><span class="chip">jira</span>
+        </div>
+      </div>
+      <div class="cap-card">
+        <h4 data-en="web3" data-ru="web3">web3</h4>
+        <div class="chips">
+          <span class="chip">DeFi</span><span class="chip">tokenomics</span><span class="chip">NFT</span>
+          <span class="chip">L1 / L2</span><span class="chip">RWA</span><span class="chip">smart contracts</span>
+          <span class="chip">TON</span><span class="chip">EVM</span><span class="chip">Solana</span>
+        </div>
+      </div>
+      <div class="cap-card">
+        <h4 data-en="analytics" data-ru="аналитика">analytics</h4>
+        <div class="chips">
+          <span class="chip">SQL</span><span class="chip">Dune Analytics</span>
+          <span class="chip">on-chain research</span><span class="chip">Python (basic)</span>
+        </div>
+      </div>
+      <div class="cap-card">
+        <h4 data-en="ai &amp; automation" data-ru="ИИ и автоматизация">ai &amp; automation</h4>
+        <div class="chips">
+          <span class="chip">Claude Code</span><span class="chip">LLM agents</span>
+          <span class="chip">n8n</span><span class="chip">prompts</span><span class="chip">skills</span><span class="chip">vibecoding</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <section class="contact-shell">
+    <h2 class="lang-en">Let's <span>connect</span></h2>
+    <h2 class="lang-ru">Выйти <span>на связь</span></h2>
+    <div class="lede lang-en" style="margin-bottom:-8px"><div class="dm-sticker"><div class="dm-sticker-inner">DM is fastest <span class="s-arrow">↓</span></div></div></div>
+    <div class="lede lang-ru" style="margin-bottom:-8px"><div class="dm-sticker"><div class="dm-sticker-inner">Пишите в лс <span class="s-arrow">↓</span></div></div></div>
+
+    <div class="contact-grid">
+      <a href="https://t.me/en0ousiazo" target="_blank" rel="noopener noreferrer">
+        <div>
+          <span class="lbl" data-en="Telegram (best)" data-ru="Telegram (лучше всего)">Telegram (best)</span>
+          <span class="val">@en0usiazo</span>
+        </div>
+        <span>↗</span>
+      </a>
+      <a href="mailto:s4ne.c4ke@gmail.com">
+        <div>
+          <span class="lbl">Email</span>
+          <span class="val">s4ne.c4ke@gmail.com</span>
+        </div>
+        <span>↗</span>
+      </a>
+      <a href="https://www.linkedin.com/in/andrey-evdokimov-596345246/" target="_blank" rel="noopener noreferrer">
+        <div>
+          <span class="lbl">LinkedIn</span>
+          <span class="val">andrey-evdokimov</span>
+        </div>
+        <span>↗</span>
+      </a>
+      <a href="https://calendly.com/evdokimov_andrey/introduction" target="_blank" rel="noopener">
+        <div>
+          <span class="lbl" data-en="Book a call" data-ru="Записаться на звонок">Book a call</span>
+          <span class="val">calendly.com/evdokimov_andrey</span>
+        </div>
+        <span>↗</span>
+      </a>
+    </div>
+  </section>
+
+  <div class="foot">
+    <span>built in claude code · <span class="wagmi">wagmi</span> · MMXXVI</span>
+    <div class="lang">
+      <a href="#" class="active">EN</a>
+      <a href="#">RU</a>
+    </div>
+  </div>
+
+</main>
+
+<div class="case-backdrop" data-close></div>
+
+<aside class="case-panel" id="case-magic-pot" aria-hidden="true">
+  <div class="cp-head">
+    <span class="cp-meta">case · <b>01</b> · magic_pot</span>
+    <button class="cp-close" data-close aria-label="close">×</button>
+  </div>
+  <div class="cp-content">
+    <div class="cp-hero">
+      <span class="cp-tag wip" data-en="● paused · 2024 — 2025 · founder" data-ru="● пауза · 2024 — 2025 · основатель">● paused · 2024 — 2025 · founder</span>
+      <h2>Magic Pot</h2>
+      <p class="cp-role" data-en="Decentralised prize-pool game on TON — Telegram Mini App + smart contract" data-ru="Децентрализованная игра с призовым пулом на TON — Telegram Mini App + смарт-контракт">Decentralised prize-pool game on TON — Telegram Mini App + smart contract</p>
+      <a class="cp-link" href="https://t.me/themagicpot" target="_blank">t.me/themagicpot ↗</a>
+    </div>
+
+    <div class="mp-intro">
+      <section class="cp-section">
+        <h3><span class="num">01</span><span data-en="What &amp; why" data-ru="Что и зачем">What &amp; why</span></h3>
+        <p class="lang-en">In 2024 the TON ecosystem was growing fast — but project communities were weak or bot-inflated, dragging token prices down. Magic Pot lets any token creator launch a <strong>customisable on-chain prize pool</strong> for token holders in five minutes: flexible winner mechanics, multi-token pools — all via smart contract, directly inside Telegram chats.</p>
+        <p class="lang-ru">В 2024 году экосистема TON активно росла — но комьюнити проектов было слабым или состояло из ботов, оказывая негативное влияние на цену токенов. Magic Pot позволяет любому создателю токена запустить для токенхолдеров <strong>настраиваемый on-chain пул с игрой</strong> за пять минут: гибкие механики победителей, мультитокенные пулы — всё через смарт-контракт, прямо в чатах Telegram.</p>
+      </section>
+      <div class="mp-banner">
+        <img src="projects/magic-pot/assets/arts/banner.png" alt="Magic Pot banner" loading="lazy">
+      </div>
+    </div>
+
+    <section class="cp-section">
+      <h3><span class="num">02</span><span data-en="What I built" data-ru="Что сделал">What I built</span></h3>
+      <ul class="lang-en">
+        <li>Telegram Mini App with custom game mechanics</li>
+        <li>Smart contract on TON for draws and prize pools</li>
+        <li><strong>2-click onboarding</strong> — join a game from chat with no sign-up</li>
+        <li>Visual identity from scratch</li>
+        <li>Bot with live in-chat commentary for draws</li>
+      </ul>
+      <ul class="lang-ru">
+        <li>Telegram Mini App с уникальными механиками</li>
+        <li>Смарт-контракт на TON для розыгрышей и призовых пулов</li>
+        <li><strong>Онбординг за 2 клика</strong> — участие в игре из чата без регистрации</li>
+        <li>Визуальная идентичность продукта с нуля</li>
+        <li>Бот с live-комментированием розыгрыша в чате</li>
+      </ul>
+      <div class="mp-arts">
+        <img src="projects/magic-pot/assets/arts/partners-in-crime.png" alt="Partners in Crime art">
+        <img src="projects/magic-pot/assets/arts/vault-13.png" alt="Vault 13 art">
+        <img src="projects/magic-pot/assets/arts/inferno.png" alt="Inferno art">
+        <img src="projects/magic-pot/assets/arts/wild-dogs.png" alt="Wild Dogs art">
+      </div>
+    </section>
+
+    <section class="cp-section">
+      <h3><span class="num">03</span><span data-en="Team &amp; how I led it" data-ru="Команда и управление">Team &amp; how I led it</span></h3>
+      <ul class="lang-en">
+        <li>6-person team: backend, smart-contract dev, DevOps, frontend, illustrator, community manager</li>
+        <li>Scrum + Kanban in Notion</li>
+        <li>Hired through the early TON ecosystem — closed <strong>2 replacements within a week</strong> without a sprint slip</li>
+        <li>Total budget: <strong>$20K</strong> over the project lifespan</li>
+      </ul>
+      <ul class="lang-ru">
+        <li>Команда 6 человек: бэкенд, разработчик смарт-контрактов, DevOps, фронтенд, иллюстратор, модератор сообщества</li>
+        <li>Scrum + Kanban в Notion</li>
+        <li>Нанимал через раннюю экосистему TON — закрыл <strong>2 замены за неделю</strong> без сдвига спринта</li>
+        <li>Общий бюджет: <strong>$20K</strong> за время жизни проекта</li>
+      </ul>
+    </section>
+
+    <section class="cp-section">
+      <h3><span class="num">04</span><span data-en="Distribution &amp; traction" data-ru="Дистрибуция и рост">Distribution &amp; traction</span></h3>
+      <ul class="lang-en">
+        <li><strong>20+ partnerships</strong> with crypto community leaders</li>
+        <li>Each new partnership: <strong>+50% MAU</strong></li>
+        <li><strong>40% of users</strong> in active partner chats participated in games</li>
+      </ul>
+      <ul class="lang-ru">
+        <li><strong>20+ партнёрств</strong> с лидерами крипто-комьюнити</li>
+        <li>Каждое новое партнёрство: <strong>+50% MAU</strong></li>
+        <li><strong>40% пользователей</strong> в активных партнёрских чатах участвовали в играх</li>
+      </ul>
+    </section>
+
+    <section class="cp-section">
+      <h3><span class="num">05</span><span data-en="TON Accelerator pitch" data-ru="Питч на TON Accelerator">TON Accelerator pitch</span></h3>
+      <p class="lang-en">Built the deck in English solo. Pitched on <strong>Twitter Spaces</strong> in front of a large audience and the accelerator team. Outcome: <strong>$5,000 grant</strong> from the TON Foundation.<img class="mp-sticker" src="projects/magic-pot/assets/stickers/gold.png" alt=""></p>
+      <p class="lang-ru">Собрал презентацию на английском самостоятельно. Выступил в <strong>Twitter Spaces</strong> перед большой аудиторией и командой акселератора. Результат: <strong>грант $5,000</strong> от TON Foundation.<img class="mp-sticker" src="projects/magic-pot/assets/stickers/gold.png" alt=""></p>
+    </section>
+
+    <div class="cp-foot">
+      <span data-en="// case 01 of 03" data-ru="// кейс 01 из 03">// case 01 of 03</span>
+      <a href="https://t.me/themagicpot" target="_blank" data-en="visit magic pot ↗" data-ru="открыть magic pot ↗">visit magic pot ↗</a>
+    </div>
+  </div>
+</aside>
+
+<aside class="case-panel" id="case-oqtacore" aria-hidden="true">
+  <div class="cp-head">
+    <span class="cp-meta">case · <b>02</b> · oqtacore</span>
+    <button class="cp-close" data-close aria-label="close">×</button>
+  </div>
+  <div class="cp-content">
+    <div class="cp-hero">
+      <span class="cp-tag shipped" data-en="▼ delivered · 2025 — 2026 · analyst &amp; pm" data-ru="▼ сдан · 2025 — 2026 · аналитик &amp; pm">▼ delivered · 2025 — 2026 · analyst &amp; pm</span>
+      <h2>Oqtacore</h2>
+      <p class="cp-role" data-en="Web3 product consultancy — end-to-end delivery for DeFi, RWA, mining and DePIN" data-ru="Web3-студия полного цикла — продуктовая экспертиза для DeFi, RWA, майнинга и DePIN">Web3 product consultancy — end-to-end delivery for DeFi, RWA, mining and DePIN</p>
+      <a class="cp-link" href="https://oqtacore.com/" target="_blank" rel="noopener">oqtacore.com ↗</a>
+    </div>
+
+
+    <section class="cp-section">
+      <h3><span class="num">01</span><span data-en="Context" data-ru="Контекст">Context</span></h3>
+      <p class="lang-en">Full-cycle Web3 studio. Joined as a Web3 analyst and product specialist, then took ownership of full delivery on key accounts after 4 months. 4 active clients in parallel.</p>
+      <p class="lang-ru">Web3-студия полного цикла. Пришёл как Web3-аналитик и продуктовый специалист, а через 4 месяца взял ответственность за полный деливери по ключевым клиентам. 4 активных клиента параллельно.</p>
+    </section>
+
+    <section class="cp-section">
+      <h3><span class="num">02</span><span data-en="Discovery work — 13 engagements" data-ru="Дискавери — 13 проектов">Discovery work — 13 engagements</span></h3>
+      <ul class="lang-en">
+        <li>For typical Web3 builds: <strong>structured JTBD interviews</strong> using an internal knowledge base</li>
+        <li>For non-standard projects: full discovery from audience research to screen flow</li>
+        <li>Every engagement closed with scope, budget breakdown, roadmap, team composition, user stories</li>
+        <li>Domains: DeFi protocols, RWA platforms, AI-on-chain apps, mining infrastructure</li>
+      </ul>
+      <ul class="lang-ru">
+        <li>Для типичных Web3-проектов: <strong>структурированные JTBD-интервью</strong> по внутренней базе знаний</li>
+        <li>Для нестандартных: полное дискавери от исследования аудитории до screen flow</li>
+        <li>Каждый проект закрывался скоупом, бюджетом, роадмапом, составом команды, пользовательскими историями</li>
+        <li>Домены: DeFi-протоколы, RWA-платформы, AI-on-chain приложения, майнинговая инфраструктура</li>
+      </ul>
+    </section>
+
+    <section class="cp-section">
+      <h3><span class="num">03</span><span data-en="Flagship delivery — mining monitoring" data-ru="Флагманский проект — мониторинг майнинга">Flagship delivery — mining monitoring</span></h3>
+      <p class="lang-en">The agency's largest single contract. <strong>7-developer team + 1 designer, $400K budget.</strong> I ran demos at milestones, wrote test instructions, did functional testing myself — user scenarios, bug verification, edge cases.</p>
+      <p class="lang-ru">Крупнейший контракт агентства. <strong>Команда из 7 разработчиков + 1 дизайнер, бюджет $400K.</strong> Проводил демо на майлстоунах, писал тест-инструкции, лично делал функциональное тестирование — пользовательские сценарии, верификация багов, граничные случаи.</p>
+      <div class="cp-callout lang-en">Convinced the client to expand the stack and shift more development to our side — won 2 extra developers in the contract, expanding the team from 5 to 7.</div>
+      <div class="cp-callout lang-ru">Убедил клиента расширить стек и перенести больше разработки на нашу сторону — выиграл 2 дополнительных разработчика в контракт, расширив команду с 5 до 7.</div>
+    </section>
+
+    <section class="cp-section">
+      <h3><span class="num">04</span><span data-en="Account management — 3 upsells" data-ru="Аккаунт-менеджмент — 3 апсейла">Account management — 3 upsells</span></h3>
+      <ol class="lang-en">
+        <li>The Go rewrite mentioned above → expanded contract, added headcount on our side</li>
+        <li><strong>$200K follow-up project</strong> from the same client — closed off the trust built during the first delivery</li>
+        <li>Designer-services upsell through partners with revenue share</li>
+      </ol>
+      <ol class="lang-ru">
+        <li>Переписывание на Go из секции выше → расширение контракта, добавление людей на нашей стороне</li>
+        <li><strong>Повторный проект на $200K</strong> от того же клиента — закрыт на доверии, выстроенном в первом деливери</li>
+        <li>Апсейл дизайнерских услуг через партнёров с долей выручки</li>
+      </ol>
+    </section>
+
+    <section class="cp-section">
+      <h3><span class="num">05</span><span data-en="Saffron — DeFi protocol on Ethereum + Solana" data-ru="Saffron — DeFi-протокол на Ethereum + Solana">Saffron — DeFi protocol on Ethereum + Solana</span></h3>
+      <p class="lang-en">Worked alongside dev team on <strong>product design for the frontend</strong>, requirements docs, and technical documentation. Ran user research to surface DeFi user needs across Ethereum and Solana ecosystems. Built the in-app user flow from findings rather than assumptions. Mid-development, identified a blocker: the frontend stack couldn't handle transaction data throughput — negotiated scope with the client and brought in an additional backend developer.</p>
+      <p class="lang-ru">Работал вместе с дев-командой над <strong>продуктовым дизайном фронтенда</strong>, требованиями и технической документацией. Провёл пользовательское исследование для выявления потребностей DeFi-аудитории в экосистемах Ethereum и Solana. На основе результатов выстроил пользовательский флоу в приложении. В ходе разработки обнаружился блокер: фронтенд-стек не справлялся со скоростью обработки транзакционных данных — согласовал с клиентом расширение команды и привлёк дополнительного бэкенд-разработчика.</p>
+    </section>
+
+    <section class="cp-section">
+      <h3><span class="num">06</span><span data-en="Planck — token launch consulting" data-ru="Planck — консультинг по запуску токена">Planck — token launch consulting</span></h3>
+      <p class="lang-en">Technical documentation, account management, and <strong>tokenomics consulting</strong> around token launch planning and strategy.</p>
+      <p class="lang-ru">Техническая документация, аккаунт-менеджмент и <strong>консультинг по токеномике</strong> в рамках планирования и стратегии запуска токена.</p>
+    </section>
+
+    <div class="cp-foot">
+      <span data-en="// case 02 of 03" data-ru="// кейс 02 из 03">// case 02 of 03</span>
+      <a href="https://t.me/en0ousiazo" target="_blank" data-en="ask about it on TG ↗" data-ru="спросить в TG ↗">ask about it on TG ↗</a>
+    </div>
+  </div>
+</aside>
+
+<aside class="case-panel" id="case-ai-jobsearch" aria-hidden="true">
+  <div class="cp-head">
+    <span class="cp-meta">case · <b>03</b> · ai_jobsearch</span>
+    <button class="cp-close" data-close aria-label="close">×</button>
+  </div>
+  <div class="cp-content">
+    <div class="cp-hero">
+      <span class="cp-tag wip" data-en="⚡ building · 2026 · side project" data-ru="⚡ в работе · 2026 · пет-проджект">⚡ building · 2026 · side project</span>
+      <h2>AI Job Search Agent</h2>
+      <p class="cp-role" data-en="A personal Claude Code agent for the rest of this job hunt" data-ru="Персональный Claude Code агент для поиска работы">A personal Claude Code agent for the rest of this job hunt</p>
+      <a class="cp-link" href="https://github.com/s4nec4ke/hr-agent-ru" target="_blank">github: s4nec4ke/hr-agent-ru ↗</a>
+    </div>
+
+    <section class="cp-section">
+      <h3><span class="num">01</span><span data-en="The brief I gave myself" data-ru="Задача которую я поставил себе">The brief I gave myself</span></h3>
+      <p class="lang-en">Spending 2 hours a day reading Telegram job channels is painfully boring and kills motivation. Manually tracking outreach is even worse. I built an agent that handles the routine — <strong>parse, score, draft outreach</strong> — and gives me back the time for interview prep.</p>
+      <p class="lang-ru">Тратить 2 часа в день на чтение Telegram-каналов с вакансиями — очень скучно и негативно влияет на мотивацию. Систематизировать вручную работу с откликами — ещё скучнее. Я собрал агента, который делает рутинную часть — <strong>парсит, оценивает, пишет черновик аутрича</strong> — и возвращает мне время для подготовки к интервью.</p>
+    </section>
+
+    <section class="cp-section">
+      <h3><span class="num">02</span><span data-en="Architecture" data-ru="Архитектура">Architecture</span></h3>
+      <ul class="lang-en">
+        <li><code>hr-collect</code> — Telethon parses configured Telegram channels, runs keyword pre-filtering, dedupes, drops vacancies into a per-day folder</li>
+        <li><code>cv-match</code> — LLM scores each vacancy against my candidate profile and picks the resume with the best-matching keywords for the application</li>
+        <li><code>vacancy-card</code> — generates a one-pager per vacancy: card + draft HR message</li>
+        <li><code>interview-prep</code> — when a vacancy hits "interview scheduled", generates brief + script + transcript template</li>
+        <li><code>hr-daily</code> — orchestrator agent, runs the whole chain end-to-end</li>
+        <li>Thin CSV index (10 columns) + per-vacancy folders for long text — fast eyeball scanning, no DB overkill</li>
+      </ul>
+      <ul class="lang-ru">
+        <li><code>hr-collect</code> — Telethon парсит настроенные Telegram-каналы, проводит первичную фильтрацию по ключевым словам, дедуплицирует, складывает вакансии в папку за день</li>
+        <li><code>cv-match</code> — LLM оценивает каждую вакансию по профилю кандидата и подбирает для отклика резюме с наиболее подходящими ключевыми словами</li>
+        <li><code>vacancy-card</code> — генерирует одностраничную карточку на вакансию: карточка + черновик сообщения HR</li>
+        <li><code>interview-prep</code> — когда вакансия получает статус "интервью назначено", создаёт brief + script + шаблон транскрипта</li>
+        <li><code>hr-daily</code> — агент-оркестратор, запускает всю цепочку от начала до конца</li>
+        <li>Тонкий CSV-индекс (10 колонок) + папки на каждую вакансию для длинных текстов — быстрое визуальное сканирование без лишней сложности</li>
+      </ul>
+      <div class="aj-pipeline">
+        <img src="projects/ai-jobsearch/assets/pipeline.png" alt="Pipeline architecture diagram" loading="lazy">
+      </div>
+    </section>
+
+    <section class="cp-section">
+      <h3><span class="num">03</span><span data-en="Stack" data-ru="Стек">Stack</span></h3>
+      <ul class="lang-en">
+        <li><strong>Python + Telethon</strong> for the Telegram side</li>
+        <li><strong>Claude Code skills</strong> as the orchestrator</li>
+        <li>Local CSV + filesystem (no DB — overkill at this size)</li>
+      </ul>
+      <ul class="lang-ru">
+        <li><strong>Python + Telethon</strong> для Telegram-части</li>
+        <li><strong>Claude Code скиллы</strong> как оркестратор</li>
+        <li>Локальный CSV + файловая система (без БД — избыточно на таком объёме)</li>
+      </ul>
+    </section>
+
+    <section class="cp-section">
+      <h3><span class="num">05</span><span data-en="Numbers so far" data-ru="Цифры на сейчас">Numbers so far</span></h3>
+      <div class="cp-numbers">
+        <div class="cp-num"><div class="l" data-en="vacancies selected" data-ru="отобрано вакансий">vacancies selected</div><div class="v m">137+</div></div>
+        <div class="cp-num"><div class="l" data-en="applications sent" data-ru="отправлено откликов">applications sent</div><div class="v">87</div></div>
+        <div class="cp-num"><div class="l" data-en="interviews booked" data-ru="назначено интервью">interviews booked</div><div class="v p">16</div></div>
+        <div class="cp-num"><div class="l" data-en="time saved / day" data-ru="экономия / день">time saved / day</div><div class="v c">~3h</div></div>
+      </div>
+    </section>
+
+
+    <div class="cp-foot">
+      <span data-en="// case 03 of 03 · in progress" data-ru="// кейс 03 из 03 · в процессе">// case 03 of 03 · in progress</span>
+      <a href="https://t.me/en0ousiazo" target="_blank" data-en="curious? DM me ↗" data-ru="интересно? пиши в DM ↗">curious? DM me ↗</a>
+    </div>
+  </div>
+</aside>
+
+<script>
+(function(){
+  const triggers = document.querySelectorAll('[data-case]');
+  const closers  = document.querySelectorAll('[data-close]');
+  const panels   = document.querySelectorAll('.case-panel');
+  const backdrop = document.querySelector('.case-backdrop');
+  const body     = document.body;
+  const themes   = ['theme-magic-pot', 'theme-oqtacore', 'theme-ai-jobsearch'];
+  const slugToTheme = {
+    'magic-pot':    'theme-magic-pot',
+    'oqtacore':     'theme-oqtacore',
+    'ai-jobsearch': 'theme-ai-jobsearch'
+  };
+
+  /* Sparkle colour palettes per project */
+  const sparkPalettes = {
+    'magic-pot':    [
+      [28,154,108],   /* bioluminescent jade */
+      [245,208,32],   /* moonlit gold */
+      [107,47,160],   /* shadow violet */
+    ],
+    'oqtacore':     [[77,168,255],[130,196,255],[180,215,255]],
+    'ai-jobsearch': [[232,121,58],[245,160,90],[255,200,130]],
+  };
+
+  function spawnSparkles(slug){
+    const palette = sparkPalettes[slug] || sparkPalettes['magic-pot'];
+    const panelW  = document.querySelector('.case-panel').offsetWidth;
+    const availW  = window.innerWidth - panelW;
+    const count   = 20;
+
+    for(let i = 0; i < count; i++){
+      const el   = document.createElement('div');
+      el.className = 'bd-spark';
+      const [r,g,b] = palette[Math.floor(Math.random() * palette.length)];
+      const size = 1.5 + Math.random() * 2.5;
+      const glow = size * 3;
+      const x    = Math.random() * availW;          /* px from left */
+      const y    = 15 + Math.random() * 72;         /* % from top   */
+      const dur  = 3.5 + Math.random() * 4;
+      const del  = Math.random() * 3.5;
+      const dx   = (Math.random() - 0.5) * 32;
+
+      el.style.cssText = `
+        width:${size}px; height:${size}px;
+        left:${x}px; top:${y}%;
+        background:rgba(${r},${g},${b},0.95);
+        box-shadow:0 0 ${glow}px rgba(${r},${g},${b},0.9),0 0 ${glow*2}px rgba(${r},${g},${b},0.4);
+        --dur:${dur}s; --delay:${del}s; --dx:${dx}px;
+      `;
+      backdrop.appendChild(el);
+    }
+  }
+
+  function clearSparkles(){
+    backdrop.querySelectorAll('.bd-spark').forEach(s => s.remove());
+  }
+
+  function clearThemes(){ themes.forEach(t => body.classList.remove(t)); }
+
+  function openCase(slug){
+    const panel = document.getElementById('case-' + slug);
+    if (!panel) return;
+    panels.forEach(p => { p.classList.remove('open'); p.setAttribute('aria-hidden','true'); });
+    panel.classList.add('open');
+    panel.setAttribute('aria-hidden','false');
+    clearThemes();
+    clearSparkles();
+    if (slugToTheme[slug]) body.classList.add(slugToTheme[slug]);
+    body.classList.add('panel-open');
+    panel.scrollTop = 0;
+    setTimeout(() => spawnSparkles(slug), 120); /* slight delay so backdrop fades in first */
+  }
+
+  function closeAll(){
+    panels.forEach(p => { p.classList.remove('open'); p.setAttribute('aria-hidden','true'); });
+    clearThemes();
+    clearSparkles();
+    body.classList.remove('panel-open');
+  }
+
+  triggers.forEach(t => t.addEventListener('click', () => openCase(t.dataset.case)));
+  closers.forEach(c  => c.addEventListener('click', closeAll));
+  document.addEventListener('keydown', e => { if(e.key === 'Escape') closeAll(); });
+})();
+</script>
+
+<div id="lb" aria-hidden="true"><img id="lb-img" src="" alt=""></div>
+<script>
+(function(){
+  const lb    = document.getElementById('lb');
+  const lbImg = document.getElementById('lb-img');
+
+  document.querySelectorAll('.mp-arts img, .aj-pipeline img').forEach(img => {
+    img.addEventListener('click', e => {
+      e.stopPropagation();
+      lbImg.src = img.src;
+      lb.classList.add('open');
+      lb.setAttribute('aria-hidden', 'false');
+    });
+  });
+
+  lb.addEventListener('click', close);
+  document.addEventListener('keydown', e => { if(e.key === 'Escape') close(); });
+
+  function close(){
+    lb.classList.remove('open');
+    lb.setAttribute('aria-hidden', 'true');
+  }
+})();
+</script>
+
+<script>
+(function(){
+  const container = document.getElementById('pg-sparks');
+  const palette = [
+    [0, 245, 160],   /* mint */
+    [0, 217, 245],   /* cyan */
+    [255, 73, 172],  /* magenta */
+  ];
+  for (let i = 0; i < 20; i++) {
+    const el = document.createElement('div');
+    el.className = 'pg-spark';
+    const [r, g, b] = palette[Math.floor(Math.random() * palette.length)];
+    const size = 1.5 + Math.random() * 2.5;
+    const glow = size * 3;
+    const x   = Math.random() * 100;
+    const y   = 10 + Math.random() * 80;
+    const dur = 4 + Math.random() * 5;
+    const del = Math.random() * 4.5;
+    const dx  = (Math.random() - 0.5) * 30;
+    el.style.cssText = `
+      width:${size}px; height:${size}px;
+      left:${x}%; top:${y}%;
+      background:rgba(${r},${g},${b},0.9);
+      box-shadow:0 0 ${glow}px rgba(${r},${g},${b},0.8),0 0 ${glow*2}px rgba(${r},${g},${b},0.3);
+      --dur:${dur}s; --delay:${del}s; --dx:${dx}px;
+    `;
+    container.appendChild(el);
+  }
+})();
+</script>
+<script>
+  /* language toggle */
+  const TRANS = {
+    tagline: {
+      en: `Shipped a mini-app to <em class="c-mint">10,000 active users</em> on TON.
+          <em class="c-cyan">$400K enterprise Web3</em> with a 7-dev team.
+          And <em class="c-magenta">a self-built AI agent</em> doing my job search<span class="tl-spinner" aria-hidden="true"><span>.</span><span>.</span><span>.</span></span>`,
+      ru: `Запустил мини-апп на <em class="c-mint">10 000 активных пользователей</em> в TON.
+          Закрыл <em class="c-cyan">корпоративный Web3 на $400K</em> с командой из 7 разработчиков.
+          И <em class="c-magenta">мой ИИ-агент</em> сам ищет мне работу<span class="tl-spinner" aria-hidden="true"><span>.</span><span>.</span><span>.</span></span>`,
+    },
+  };
+
+  function applyLang(lang) {
+    document.documentElement.lang = lang;
+    document.querySelectorAll('[data-en]').forEach(el => {
+      el.innerHTML = lang === 'ru' ? (el.dataset.ru || el.dataset.en) : el.dataset.en;
+    });
+    document.querySelectorAll('[data-trans]').forEach(el => {
+      const key = el.dataset.trans;
+      if (TRANS[key]) el.innerHTML = TRANS[key][lang] || TRANS[key].en;
+    });
+  }
+
+  document.querySelectorAll('.lang-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      applyLang(btn.dataset.lang);
+    });
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>andrey · gm · pm</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Lilita+One&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #FFE93D;
+    --bg-soft: #FFF4A1;
+    --ink: #0A0A0A;
+    --ink-soft: #2A2410;
+    --magenta: #FF2A8E;
+    --lime: #B3F542;
+    --cyan: #00E5FF;
+    --orange: #FF6B1A;
+    --violet: #8B5CFF;
+    --paper: #FFFAEC;
+  }
+
+  *{ box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body{
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Lilita One', sans-serif;
+    font-size: 17px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+    background:
+      radial-gradient(ellipse 80% 50% at 10% 10%, rgba(255,42,142,0.35), transparent 50%),
+      radial-gradient(ellipse 70% 60% at 95% 30%, rgba(0,229,255,0.3), transparent 55%),
+      radial-gradient(ellipse 60% 60% at 80% 90%, rgba(179,245,66,0.45), transparent 55%),
+      radial-gradient(ellipse 90% 50% at 0% 100%, rgba(139,92,255,0.25), transparent 55%),
+      var(--bg);
+  }
+
+  /* sparkles floating */
+  .sparkle{
+    position: fixed;
+    pointer-events: none;
+    z-index: 0;
+    font-size: 24px;
+    animation: float 6s ease-in-out infinite;
+  }
+  .sparkle.s1{ top: 8%; left: 12%; animation-delay: 0s; }
+  .sparkle.s2{ top: 18%; right: 8%; animation-delay: 1.5s; font-size: 32px; }
+  .sparkle.s3{ top: 52%; left: 4%; animation-delay: 3s; font-size: 20px; }
+  .sparkle.s4{ top: 72%; right: 6%; animation-delay: 0.8s; font-size: 36px; }
+  .sparkle.s5{ top: 88%; left: 50%; animation-delay: 2.2s; font-size: 22px; }
+  .sparkle.s6{ top: 35%; left: 80%; animation-delay: 4s; font-size: 28px; }
+  @keyframes float{
+    0%, 100%{ transform: translateY(0) rotate(0deg); opacity: 0.7; }
+    50%{ transform: translateY(-20px) rotate(15deg); opacity: 1; }
+  }
+
+  .page{
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 28px 22px 80px;
+    position: relative;
+    z-index: 2;
+  }
+
+  /* TOP RIBBON */
+  .ribbon{
+    background: var(--ink);
+    color: var(--lime);
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    padding: 10px 20px;
+    border-radius: 999px;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 36px;
+    border: 2px solid var(--ink);
+    box-shadow: 6px 6px 0 var(--magenta);
+  }
+  .ribbon b{ color: var(--cyan); }
+  .blink{
+    display: inline-block;
+    width: 9px; height: 9px;
+    background: var(--lime);
+    border-radius: 50%;
+    margin-right: 6px;
+    animation: blink-pulse 1.5s ease-in-out infinite;
+    box-shadow: 0 0 10px var(--lime);
+  }
+  @keyframes blink-pulse{
+    0%, 100%{ transform: scale(1); opacity: 1; }
+    50%{ transform: scale(1.3); opacity: 0.6; }
+  }
+
+  /* HERO STICKER */
+  .hero{
+    background: var(--paper);
+    border: 4px solid var(--ink);
+    border-radius: 32px;
+    padding: 40px 36px;
+    box-shadow: 12px 12px 0 var(--magenta);
+    position: relative;
+    transform: rotate(-1.2deg);
+    transition: transform .35s cubic-bezier(.5,1.5,.5,1);
+  }
+  .hero:hover{ transform: rotate(0deg) scale(1.005); }
+
+  .hero .gm{
+    display: inline-block;
+    background: var(--lime);
+    border: 3px solid var(--ink);
+    padding: 6px 16px;
+    border-radius: 999px;
+    font-family: 'Bagel Fat One', sans-serif;
+    font-size: 18px;
+    letter-spacing: 0.04em;
+    box-shadow: 4px 4px 0 var(--ink);
+    transform: rotate(-2deg);
+    margin-bottom: 22px;
+  }
+  .hero .gm::before{ content: "🌅 "; }
+
+  .name{
+    font-family: 'Bagel Fat One', sans-serif;
+    font-size: clamp(72px, 14vw, 168px);
+    line-height: 0.88;
+    letter-spacing: -0.025em;
+    color: var(--ink);
+  }
+  .name .row2{
+    display: block;
+    color: var(--magenta);
+    text-shadow: 5px 5px 0 var(--ink);
+    margin-top: 4px;
+  }
+  .name .dot{
+    color: var(--cyan);
+    text-shadow: 4px 4px 0 var(--ink);
+  }
+
+  .who{
+    margin-top: 20px;
+    font-family: 'Lilita One', sans-serif;
+    font-size: clamp(22px, 2.8vw, 32px);
+    line-height: 1.25;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+  }
+  .who u{
+    text-decoration: none;
+    background: var(--cyan);
+    padding: 0 6px;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+    border-radius: 6px;
+  }
+  .who em{
+    font-style: normal;
+    background: var(--magenta);
+    color: var(--paper);
+    padding: 0 8px;
+    border-radius: 6px;
+  }
+
+  .badges{
+    margin-top: 22px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .badge{
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 8px 14px;
+    border: 2.5px solid var(--ink);
+    border-radius: 999px;
+    background: var(--paper);
+    color: var(--ink);
+    box-shadow: 3px 3px 0 var(--ink);
+    transition: transform .2s;
+  }
+  .badge:hover{ transform: translate(-2px,-2px); box-shadow: 5px 5px 0 var(--ink); }
+  .badge.b1{ background: var(--lime); }
+  .badge.b2{ background: var(--cyan); }
+  .badge.b3{ background: var(--magenta); color: var(--paper); }
+  .badge.b4{ background: var(--orange); color: var(--paper); }
+
+  /* SECTION TITLE BLOCK */
+  .sec{ margin-top: 80px; }
+  .sec-banner{
+    display: inline-block;
+    background: var(--ink);
+    color: var(--bg);
+    font-family: 'Bagel Fat One', sans-serif;
+    font-size: clamp(28px, 4vw, 44px);
+    padding: 10px 24px 14px;
+    border-radius: 16px;
+    border: 4px solid var(--ink);
+    box-shadow: 8px 8px 0 var(--magenta);
+    transform: rotate(-1deg);
+    margin-bottom: 28px;
+    letter-spacing: -0.01em;
+  }
+  .sec-banner::before{ content: "✦ "; color: var(--lime); }
+  .sec-banner::after{ content: " ✦"; color: var(--cyan); }
+  .sec.s3 .sec-banner{ box-shadow: 8px 8px 0 var(--lime); transform: rotate(1deg); }
+  .sec.s4 .sec-banner{ box-shadow: 8px 8px 0 var(--cyan); transform: rotate(-0.6deg); }
+
+  /* WORK CARD */
+  .work{
+    background: var(--paper);
+    border: 4px solid var(--ink);
+    border-radius: 24px;
+    padding: 32px 30px;
+    box-shadow: 8px 8px 0 var(--ink);
+    margin-bottom: 28px;
+    transition: transform .3s cubic-bezier(.5,1.5,.5,1), box-shadow .3s;
+  }
+  .work:hover{ transform: translate(-3px,-3px); box-shadow: 12px 12px 0 var(--ink); }
+  .work.w1{ background: var(--paper); }
+  .work.w2{ background: var(--bg-soft); transform: rotate(0.6deg); }
+  .work.w2:hover{ transform: translate(-3px,-3px) rotate(0deg); }
+  .work.w3{ background: #E0F7FF; transform: rotate(-0.4deg); }
+  .work.w3:hover{ transform: translate(-3px,-3px) rotate(0deg); }
+
+  .work-top{
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-bottom: 12px;
+  }
+  .work-title{
+    font-family: 'Bagel Fat One', sans-serif;
+    font-size: clamp(34px, 4.5vw, 56px);
+    line-height: 1;
+    letter-spacing: -0.022em;
+    color: var(--ink);
+  }
+  .work-title a{
+    color: inherit;
+    text-decoration: none;
+    border-bottom: 4px solid transparent;
+    transition: border-color .2s;
+  }
+  .work-title a:hover{ border-color: var(--magenta); }
+  .work-title .em{ color: var(--magenta); }
+  .work-title .ar{ color: var(--cyan); }
+
+  .work-tags{
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .wt{
+    font-family: 'Space Mono', monospace;
+    font-size: 11.5px;
+    font-weight: 700;
+    padding: 5px 11px;
+    border: 2px solid var(--ink);
+    border-radius: 999px;
+    background: var(--paper);
+    color: var(--ink);
+  }
+  .wt.live{ background: var(--lime); }
+  .wt.wip{ background: var(--cyan); }
+  .wt.year{ background: var(--ink); color: var(--paper); }
+
+  .work-role{
+    font-family: 'Lilita One', sans-serif;
+    font-size: 19px;
+    color: var(--ink-soft);
+    margin: 8px 0 18px;
+    line-height: 1.3;
+  }
+  .work-desc{
+    font-family: 'Lilita One', sans-serif;
+    font-size: 17px;
+    line-height: 1.55;
+    color: var(--ink);
+    max-width: 60ch;
+    margin-bottom: 22px;
+  }
+  .work-desc strong{
+    background: var(--lime);
+    padding: 0 6px;
+    border-radius: 4px;
+  }
+
+  .stats{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .stat{
+    font-family: 'Space Mono', monospace;
+    font-size: 13.5px;
+    font-weight: 700;
+    padding: 8px 14px;
+    border: 2.5px solid var(--ink);
+    border-radius: 14px;
+    background: var(--paper);
+    box-shadow: 3px 3px 0 var(--ink);
+    color: var(--ink);
+  }
+  .stat .k{
+    font-size: 10px;
+    color: var(--ink);
+    opacity: 0.55;
+    margin-right: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .stat.h{ background: var(--magenta); color: var(--paper); }
+  .stat.h .k{ color: var(--paper); opacity: 0.7; }
+  .stat.g{ background: var(--lime); }
+  .stat.c{ background: var(--cyan); }
+
+  /* PRIOR */
+  .prior{
+    background: var(--paper);
+    border: 4px solid var(--ink);
+    border-radius: 24px;
+    padding: 24px 28px;
+    box-shadow: 6px 6px 0 var(--ink);
+  }
+  .prior-row{
+    padding: 14px 0;
+    border-bottom: 3px dashed var(--ink);
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    gap: 18px;
+    align-items: baseline;
+  }
+  .prior-row:last-child{ border-bottom: none; }
+  .prior-year{
+    font-family: 'Bagel Fat One', sans-serif;
+    font-size: 22px;
+    color: var(--magenta);
+    letter-spacing: -0.01em;
+  }
+  .prior-text{
+    font-family: 'Lilita One', sans-serif;
+    font-size: 17px;
+    line-height: 1.4;
+    color: var(--ink);
+  }
+  .prior-text b{
+    background: var(--cyan);
+    padding: 0 6px;
+    border-radius: 4px;
+  }
+
+  /* CAPABILITIES */
+  .skills-wrap{
+    background: var(--paper);
+    border: 4px solid var(--ink);
+    border-radius: 24px;
+    padding: 28px;
+    box-shadow: 6px 6px 0 var(--ink);
+  }
+  .skill-group{
+    margin-bottom: 22px;
+  }
+  .skill-group:last-child{ margin-bottom: 0; }
+  .skill-group h4{
+    font-family: 'Bagel Fat One', sans-serif;
+    font-size: 22px;
+    margin-bottom: 12px;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+  }
+  .skill-group:nth-child(1) h4::before{ content: "🧠 "; }
+  .skill-group:nth-child(2) h4::before{ content: "⛓️ "; }
+  .skill-group:nth-child(3) h4::before{ content: "📊 "; }
+  .skill-group:nth-child(4) h4::before{ content: "🤖 "; }
+  .skill-chips{ display: flex; flex-wrap: wrap; gap: 6px; }
+  .sc{
+    font-family: 'Space Mono', monospace;
+    font-size: 12.5px;
+    font-weight: 700;
+    padding: 5px 11px;
+    border: 2px solid var(--ink);
+    border-radius: 999px;
+    background: var(--paper);
+    color: var(--ink);
+  }
+  .sc.h{ background: var(--lime); }
+
+  /* CONTACT */
+  .contact-card{
+    margin-top: 80px;
+    background: var(--ink);
+    color: var(--paper);
+    border: 4px solid var(--ink);
+    border-radius: 32px;
+    padding: 48px 40px;
+    box-shadow: 12px 12px 0 var(--magenta);
+    position: relative;
+  }
+  .contact-card h2{
+    font-family: 'Bagel Fat One', sans-serif;
+    font-size: clamp(48px, 8vw, 96px);
+    line-height: 0.95;
+    letter-spacing: -0.025em;
+    color: var(--paper);
+  }
+  .contact-card h2 .em{ color: var(--lime); }
+  .contact-card h2 .em2{ color: var(--cyan); }
+  .contact-card .lede{
+    font-family: 'Lilita One', sans-serif;
+    font-size: 20px;
+    margin-top: 12px;
+    color: var(--bg);
+    max-width: 50ch;
+    line-height: 1.35;
+  }
+
+  .contacts{
+    margin-top: 32px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  .contacts a{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 22px;
+    border: 3px solid var(--paper);
+    border-radius: 18px;
+    background: transparent;
+    color: var(--paper);
+    text-decoration: none;
+    font-family: 'Space Mono', monospace;
+    font-size: 14.5px;
+    font-weight: 700;
+    transition: all .2s;
+  }
+  .contacts a:hover{
+    background: var(--lime);
+    border-color: var(--lime);
+    color: var(--ink);
+  }
+  .contacts a .l{
+    font-size: 11px;
+    opacity: 0.7;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 3px;
+    display: block;
+  }
+  .contacts a:hover .l{ opacity: 1; color: var(--ink-soft); }
+
+  .cta-row{
+    margin-top: 28px;
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .btn{
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 16px 26px;
+    font-family: 'Bagel Fat One', sans-serif;
+    font-size: 18px;
+    letter-spacing: -0.01em;
+    text-decoration: none;
+    border: 3px solid var(--paper);
+    border-radius: 999px;
+    color: var(--paper);
+    background: transparent;
+    transition: all .2s cubic-bezier(.5,1.5,.5,1);
+  }
+  .btn:hover{ transform: translateY(-3px); }
+  .btn.primary{
+    background: var(--magenta);
+    border-color: var(--magenta);
+    color: var(--paper);
+    box-shadow: 4px 4px 0 var(--paper);
+  }
+  .btn.primary:hover{ box-shadow: 7px 7px 0 var(--paper); }
+  .btn.ghost{
+    background: var(--lime);
+    color: var(--ink);
+    border-color: var(--lime);
+    box-shadow: 4px 4px 0 var(--paper);
+  }
+  .btn.ghost:hover{ box-shadow: 7px 7px 0 var(--paper); }
+
+  /* FOOTER */
+  .foot{
+    margin-top: 60px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    color: var(--ink);
+    padding: 14px 24px;
+    background: var(--paper);
+    border: 3px solid var(--ink);
+    border-radius: 999px;
+    box-shadow: 5px 5px 0 var(--ink);
+  }
+  .lang{ display: flex; gap: 8px; }
+  .lang a{
+    color: var(--ink);
+    text-decoration: none;
+    padding: 4px 11px;
+    border: 2px solid var(--ink);
+    border-radius: 999px;
+  }
+  .lang a.active{ background: var(--magenta); color: var(--paper); border-color: var(--ink); }
+
+  @media (max-width: 720px){
+    .page{ padding: 18px 14px 60px; }
+    .hero{ padding: 28px 22px; border-radius: 24px; box-shadow: 8px 8px 0 var(--magenta); }
+    .work-top{ flex-direction: column; }
+    .contacts{ grid-template-columns: 1fr; }
+    .prior-row{ grid-template-columns: 1fr; gap: 4px; }
+    .contact-card{ padding: 32px 22px; border-radius: 24px; box-shadow: 8px 8px 0 var(--magenta); }
+  }
+
+  @keyframes pop{
+    from{ opacity: 0; transform: translateY(20px) scale(.95); }
+    to{ opacity: 1; transform: translateY(0) scale(1); }
+  }
+  .ribbon, .hero, .sec, .contact-card, .foot{
+    animation: pop .7s cubic-bezier(.5,1.6,.4,1) both;
+  }
+  .hero{ animation-delay: .1s; }
+  .sec.s2{ animation-delay: .25s; }
+  .sec.s3{ animation-delay: .35s; }
+  .sec.s4{ animation-delay: .45s; }
+  .contact-card{ animation-delay: .55s; }
+</style>
+</head>
+<body>
+
+<span class="sparkle s1">✨</span>
+<span class="sparkle s2">⭐</span>
+<span class="sparkle s3">✦</span>
+<span class="sparkle s4">🌟</span>
+<span class="sparkle s5">💫</span>
+<span class="sparkle s6">✨</span>
+
+<main class="page">
+
+  <div class="ribbon">
+    <span><span class="blink"></span><b>open_to_work</b> · ser, i'm looking for the next ship</span>
+    <span>2026 · onchain since 2021</span>
+  </div>
+
+  <section class="hero">
+    <span class="gm">gm anon</span>
+    <h1 class="name">
+      Andrey
+      <span class="row2">Evdokimov<span class="dot">.</span></span>
+    </h1>
+    <p class="who">
+      product manager · web3 native ·
+      shipped <u>9,680 frens</u> on TON ·
+      currently <em>building my own job-search agent</em>
+    </p>
+    <div class="badges">
+      <span class="badge b1">🚀 ship</span>
+      <span class="badge b2">🧠 jtbd</span>
+      <span class="badge b3">⛓️ onchain</span>
+      <span class="badge b4">🤖 ai-native</span>
+    </div>
+  </section>
+
+  <section class="sec s2">
+    <h2 class="sec-banner">selected ships</h2>
+
+    <article class="work w1">
+      <div class="work-top">
+        <h3 class="work-title"><a href="https://t.me/themagicpot">Magic <span class="em">Pot</span> <span class="ar">→</span></a></h3>
+        <div class="work-tags">
+          <span class="wt live">● live</span>
+          <span class="wt year">2024–25</span>
+          <span class="wt">founder</span>
+        </div>
+      </div>
+      <p class="work-role">decentralised lottery on TON · telegram mini app + smart contract</p>
+      <p class="work-desc">
+        i shipped a fully onchain mini-game inside Telegram from zero to a working
+        community on a <strong>$15K budget</strong>. led frontend, backend, smart
+        contracts, devops &amp; an illustrator. pitched at TON Accel on Twitter Spaces.
+        got a <strong>$5K grant</strong> 💰
+      </p>
+      <div class="stats">
+        <span class="stat h"><span class="k">frens</span>9,680</span>
+        <span class="stat"><span class="k">mau</span>~1k</span>
+        <span class="stat g"><span class="k">grant</span>$5K gm</span>
+        <span class="stat"><span class="k">budget</span>$15K</span>
+        <span class="stat"><span class="k">partners</span>20+</span>
+        <span class="stat c"><span class="k">chain</span>TON</span>
+      </div>
+    </article>
+
+    <article class="work w2">
+      <div class="work-top">
+        <h3 class="work-title">Oqta<span class="em">core</span></h3>
+        <div class="work-tags">
+          <span class="wt year">2025–26</span>
+          <span class="wt">analyst · pm</span>
+        </div>
+      </div>
+      <p class="work-role">discovery &amp; delivery for DeFi · RWA · AI · mining</p>
+      <p class="work-desc">
+        ran <strong>13 discovery engagements</strong> — JTBD interviews → scopes,
+        budgets, roadmaps. owned the agency's largest contract — a mining
+        monitoring platform with a <strong>7-dev team</strong> on
+        <strong>$400K</strong>. closed 3 upsells incl. a $200K follow-up. wagmi 🚀
+      </p>
+      <div class="stats">
+        <span class="stat h"><span class="k">discoveries</span>13</span>
+        <span class="stat"><span class="k">team</span>7 devs</span>
+        <span class="stat g"><span class="k">largest</span>$400K</span>
+        <span class="stat"><span class="k">upsells</span>3 ✦</span>
+        <span class="stat c"><span class="k">follow-up</span>+$200K</span>
+      </div>
+    </article>
+
+    <article class="work w3">
+      <div class="work-top">
+        <h3 class="work-title">AI <span class="em">JobSearch</span> Agent</h3>
+        <div class="work-tags">
+          <span class="wt wip">⚡ building</span>
+          <span class="wt year">2026</span>
+          <span class="wt">side</span>
+        </div>
+      </div>
+      <p class="work-role">a personal claude code agent for the rest of this job hunt</p>
+      <p class="work-desc">
+        telegram channels parsed with telethon, vacancies auto-scored vs my profile,
+        qualifying ones → CSV + tailored CV + draft outreach msg — all daily as a
+        <strong>claude code skill chain</strong>. ↓ this site itself came out of that.
+      </p>
+      <div class="stats">
+        <span class="stat"><span class="k">stack</span>python · telethon</span>
+        <span class="stat c"><span class="k">orchestrator</span>claude code</span>
+        <span class="stat g"><span class="k">status</span>shipping ✨</span>
+      </div>
+    </article>
+  </section>
+
+  <section class="sec s3">
+    <h2 class="sec-banner">before that</h2>
+    <div class="prior">
+      <div class="prior-row">
+        <span class="prior-year">22 → 24</span>
+        <span class="prior-text"><b>biz dev</b> @ GGEM Launcher · 30+ GameFi partnerships, white paper, tokenomics design</span>
+      </div>
+      <div class="prior-row">
+        <span class="prior-year">21 → 24</span>
+        <span class="prior-text"><b>independent research</b> · Dune dashboards &amp; onchain research across TON · ETH · SOL · AVAX · POLY · BSC · ARB · BERA · OAS</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec s4">
+    <h2 class="sec-banner">what i bring</h2>
+    <div class="skills-wrap">
+      <div class="skill-group">
+        <h4>product</h4>
+        <div class="skill-chips">
+          <span class="sc h">AARRR</span><span class="sc h">RICE</span><span class="sc h">JTBD</span>
+          <span class="sc">roadmaps</span><span class="sc">user stories</span>
+          <span class="sc">scrum</span><span class="sc">kanban</span>
+          <span class="sc">notion</span><span class="sc">jira</span>
+        </div>
+      </div>
+      <div class="skill-group">
+        <h4>web3</h4>
+        <div class="skill-chips">
+          <span class="sc h">DeFi</span><span class="sc h">tokenomics</span><span class="sc">NFT</span>
+          <span class="sc">L1 / L2</span><span class="sc">RWA</span><span class="sc">smart contracts</span>
+          <span class="sc h">TON</span><span class="sc">EVM</span><span class="sc">Solana</span>
+        </div>
+      </div>
+      <div class="skill-group">
+        <h4>analytics</h4>
+        <div class="skill-chips">
+          <span class="sc h">SQL</span><span class="sc">Dune</span>
+          <span class="sc">onchain research</span><span class="sc">Python</span>
+        </div>
+      </div>
+      <div class="skill-group">
+        <h4>ai &amp; automation</h4>
+        <div class="skill-chips">
+          <span class="sc h">Claude Code</span><span class="sc h">LLM agents</span>
+          <span class="sc">n8n</span><span class="sc">prompts</span><span class="sc">Telethon</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="contact-card">
+    <h2>let's <span class="em">build</span> <span class="em2">something</span>.</h2>
+    <p class="lede">looking for a pm role at a web3 startup. early stage. remote. EU/MSK/UAE. earliest start in 2 weeks. dm me anon 👀</p>
+
+    <div class="contacts">
+      <a href="https://t.me/en0usiazo">
+        <div>
+          <span class="l">telegram (best)</span>
+          <span>@en0usiazo</span>
+        </div>
+        <span>→</span>
+      </a>
+      <a href="mailto:s4ne.c4ke@gmail.com">
+        <div>
+          <span class="l">email</span>
+          <span>s4ne.c4ke@gmail.com</span>
+        </div>
+        <span>→</span>
+      </a>
+      <a href="https://www.linkedin.com/in/andrey-evdokimov-596345246/">
+        <div>
+          <span class="l">linkedin (for the suits)</span>
+          <span>andrey-evdokimov</span>
+        </div>
+        <span>→</span>
+      </a>
+      <a href="https://dune.com/wonderfulsecret/castaways">
+        <div>
+          <span class="l">my dune</span>
+          <span>wonderfulsecret/castaways</span>
+        </div>
+        <span>→</span>
+      </a>
+    </div>
+
+    <div class="cta-row">
+      <a class="btn primary" href="#">↓ grab my cv</a>
+      <a class="btn ghost" href="#">→ book a call · wagmi</a>
+      <a class="btn" href="#">📩 dm me on tg</a>
+    </div>
+  </section>
+
+  <div class="foot">
+    <span>built with claude code · gm · MMXXVI</span>
+    <div class="lang">
+      <a href="#" class="active">EN</a>
+      <a href="#">RU</a>
+    </div>
+  </div>
+
+</main>
+</body>
+</html>

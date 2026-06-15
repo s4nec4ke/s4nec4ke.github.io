@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Gnome Fall Sounds</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&display=swap');
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #0A0E14;
+      color: #c8d0dc;
+      font-family: 'JetBrains Mono', monospace;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 60px 24px;
+      gap: 12px;
+    }
+    h1 { color: #00F5A0; font-size: 18px; letter-spacing: 0.08em; margin-bottom: 32px; }
+    .btn {
+      background: #111820;
+      color: #c8d0dc;
+      border: 1px solid #1e2a38;
+      padding: 14px 24px;
+      font-family: inherit;
+      font-size: 13px;
+      cursor: pointer;
+      border-radius: 6px;
+      width: 380px;
+      text-align: left;
+      transition: border-color .2s, background .15s, color .15s;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .btn:hover { border-color: #00F5A0; background: #0f1f18; color: #fff; }
+    .btn:active { background: #0a1a12; }
+    .btn.playing { border-color: #FF49AC; color: #FF49AC; }
+    .num { color: #00D9F5; font-size: 11px; min-width: 24px; opacity: 0.7; }
+    .btn.playing .num { opacity: 1; color: #FF49AC; }
+  </style>
+</head>
+<body>
+  <h1>// gnome fall sounds — комичные</h1>
+
+  <button class="btn" onclick="play(1, this)"><span class="num">01</span> Свисток (классический слайд вниз)</button>
+  <button class="btn" onclick="play(2, this)"><span class="num">02</span> Грустный тромбон (вааа-вааа-ваа)</button>
+  <button class="btn" onclick="play(3, this)"><span class="num">03</span> Пружина (бо-о-о-йнг)</button>
+  <button class="btn" onclick="play(4, this)"><span class="num">04</span> Ксилофон вниз (ступеньки)</button>
+  <button class="btn" onclick="play(5, this)"><span class="num">05</span> Утка (кря + падение)</button>
+  <button class="btn" onclick="play(6, this)"><span class="num">06</span> Пузырьки лопаются вниз</button>
+  <button class="btn" onclick="play(7, this)"><span class="num">07</span> Рикошет (вверх потом вниз)</button>
+  <button class="btn" onclick="play(8, this)"><span class="num">08</span> Мультяшный вопль</button>
+  <button class="btn" onclick="play(9, this)"><span class="num">09</span> Виляние (вжжж с вибрато)</button>
+  <button class="btn" onclick="play(10, this)"><span class="num">10</span> Шарик воздух выходит</button>
+
+  <script>
+  const sounds = {
+
+    1(c, t) { // свисток — классический slide whistle
+      const o = c.createOscillator(), g = c.createGain();
+      o.connect(g); g.connect(c.destination);
+      o.type = 'sine';
+      o.frequency.setValueAtTime(1100, t);
+      o.frequency.setValueAtTime(1100, t + 0.05);
+      o.frequency.exponentialRampToValueAtTime(55, t + 0.85);
+      g.gain.setValueAtTime(0.28, t);
+      g.gain.setValueAtTime(0.28, t + 0.70);
+      g.gain.exponentialRampToValueAtTime(0.001, t + 0.90);
+      o.start(t); o.stop(t + 0.92);
+      return 0.92;
+    },
+
+    2(c, t) { // грустный тромбон — 3 нисходящих вааа
+      const steps = [
+        { f: 220, dur: 0.28 },
+        { f: 165, dur: 0.28 },
+        { f: 110, dur: 0.42 },
+      ];
+      let offset = 0;
+      steps.forEach(({ f, dur }) => {
+        const o = c.createOscillator(), g = c.createGain();
+        o.connect(g); g.connect(c.destination);
+        o.type = 'sawtooth';
+        o.frequency.setValueAtTime(f * 1.15, t + offset);
+        o.frequency.exponentialRampToValueAtTime(f, t + offset + dur * 0.6);
+        g.gain.setValueAtTime(0, t + offset);
+        g.gain.linearRampToValueAtTime(0.20, t + offset + 0.04);
+        g.gain.setValueAtTime(0.20, t + offset + dur - 0.05);
+        g.gain.linearRampToValueAtTime(0, t + offset + dur);
+        o.start(t + offset); o.stop(t + offset + dur + 0.01);
+        offset += dur;
+      });
+      return offset + 0.1;
+    },
+
+    3(c, t) { // пружина бойнг
+      const o = c.createOscillator(), g = c.createGain();
+      o.connect(g); g.connect(c.destination);
+      o.type = 'sine';
+      // быстрые колебания частоты, затухающие
+      o.frequency.setValueAtTime(80, t);
+      o.frequency.linearRampToValueAtTime(600, t + 0.04);
+      o.frequency.linearRampToValueAtTime(80, t + 0.10);
+      o.frequency.linearRampToValueAtTime(480, t + 0.16);
+      o.frequency.linearRampToValueAtTime(120, t + 0.24);
+      o.frequency.linearRampToValueAtTime(380, t + 0.30);
+      o.frequency.linearRampToValueAtTime(150, t + 0.40);
+      o.frequency.linearRampToValueAtTime(280, t + 0.46);
+      o.frequency.linearRampToValueAtTime(180, t + 0.58);
+      o.frequency.exponentialRampToValueAtTime(55, t + 0.80);
+      g.gain.setValueAtTime(0.35, t);
+      g.gain.exponentialRampToValueAtTime(0.001, t + 0.85);
+      o.start(t); o.stop(t + 0.88);
+      return 0.88;
+    },
+
+    4(c, t) { // ксилофон вниз
+      const notes = [880, 740, 622, 523, 440, 370, 294, 220, 165, 110];
+      notes.forEach((freq, i) => {
+        const o = c.createOscillator(), g = c.createGain();
+        o.connect(g); g.connect(c.destination);
+        o.type = 'sine';
+        o.frequency.value = freq;
+        const s = t + i * 0.072;
+        g.gain.setValueAtTime(0, s);
+        g.gain.linearRampToValueAtTime(0.22, s + 0.008);
+        g.gain.exponentialRampToValueAtTime(0.001, s + 0.20);
+        o.start(s); o.stop(s + 0.22);
+      });
+      return 10 * 0.072 + 0.25;
+    },
+
+    5(c, t) { // утка: кряк + свист вниз
+      // кряк
+      const oq = c.createOscillator(), gq = c.createGain();
+      oq.connect(gq); gq.connect(c.destination);
+      oq.type = 'square';
+      oq.frequency.setValueAtTime(380, t);
+      oq.frequency.linearRampToValueAtTime(260, t + 0.12);
+      gq.gain.setValueAtTime(0.18, t);
+      gq.gain.exponentialRampToValueAtTime(0.001, t + 0.14);
+      oq.start(t); oq.stop(t + 0.15);
+
+      // свист вниз после кряка
+      const o = c.createOscillator(), g = c.createGain();
+      o.connect(g); g.connect(c.destination);
+      o.type = 'sine';
+      o.frequency.setValueAtTime(900, t + 0.18);
+      o.frequency.exponentialRampToValueAtTime(55, t + 0.90);
+      g.gain.setValueAtTime(0.24, t + 0.18);
+      g.gain.setValueAtTime(0.24, t + 0.78);
+      g.gain.exponentialRampToValueAtTime(0.001, t + 0.94);
+      o.start(t + 0.18); o.stop(t + 0.96);
+      return 0.96;
+    },
+
+    6(c, t) { // пузырьки лопаются вниз
+      const pitches = [900, 780, 660, 560, 460, 370, 290, 210, 150];
+      pitches.forEach((freq, i) => {
+        const o = c.createOscillator(), g = c.createGain();
+        o.connect(g); g.connect(c.destination);
+        o.type = 'sine';
+        const s = t + i * 0.082;
+        o.frequency.setValueAtTime(freq * 1.3, s);
+        o.frequency.exponentialRampToValueAtTime(freq * 0.7, s + 0.06);
+        g.gain.setValueAtTime(0.22, s);
+        g.gain.exponentialRampToValueAtTime(0.001, s + 0.07);
+        o.start(s); o.stop(s + 0.08);
+      });
+      return 9 * 0.082 + 0.1;
+    },
+
+    7(c, t) { // рикошет — вверх потом резко вниз
+      const o = c.createOscillator(), g = c.createGain();
+      o.connect(g); g.connect(c.destination);
+      o.type = 'sine';
+      o.frequency.setValueAtTime(200, t);
+      o.frequency.exponentialRampToValueAtTime(1400, t + 0.18); // быстро вверх
+      o.frequency.exponentialRampToValueAtTime(50, t + 0.72);   // медленно вниз
+      g.gain.setValueAtTime(0.30, t);
+      g.gain.setValueAtTime(0.30, t + 0.60);
+      g.gain.exponentialRampToValueAtTime(0.001, t + 0.76);
+      o.start(t); o.stop(t + 0.78);
+      return 0.78;
+    },
+
+    8(c, t) { // мультяшный вопль — быстро вверх, медленно вниз
+      const o = c.createOscillator(), g = c.createGain();
+      o.connect(g); g.connect(c.destination);
+      o.type = 'sawtooth';
+      o.frequency.setValueAtTime(220, t);
+      o.frequency.exponentialRampToValueAtTime(1800, t + 0.12); // вопль
+      o.frequency.exponentialRampToValueAtTime(55, t + 0.95);   // падение
+      g.gain.setValueAtTime(0.0, t);
+      g.gain.linearRampToValueAtTime(0.22, t + 0.05);
+      g.gain.setValueAtTime(0.22, t + 0.80);
+      g.gain.exponentialRampToValueAtTime(0.001, t + 1.0);
+      o.start(t); o.stop(t + 1.02);
+      return 1.02;
+    },
+
+    9(c, t) { // виляние — синус с вибрато + спуск
+      const o = c.createOscillator(), g = c.createGain();
+      const lfo = c.createOscillator(), lg = c.createGain();
+      lfo.connect(lg);
+      lg.connect(o.frequency);
+      o.connect(g); g.connect(c.destination);
+
+      o.type = 'triangle';
+      o.frequency.setValueAtTime(600, t);
+      o.frequency.exponentialRampToValueAtTime(60, t + 0.80);
+
+      lfo.type = 'sine';
+      lfo.frequency.setValueAtTime(14, t);
+      lg.gain.setValueAtTime(80, t);
+      lg.gain.exponentialRampToValueAtTime(5, t + 0.80);
+
+      g.gain.setValueAtTime(0.26, t);
+      g.gain.setValueAtTime(0.26, t + 0.68);
+      g.gain.exponentialRampToValueAtTime(0.001, t + 0.84);
+
+      lfo.start(t); lfo.stop(t + 0.85);
+      o.start(t); o.stop(t + 0.85);
+      return 0.85;
+    },
+
+    10(c, t) { // шарик — воздух выходит
+      const o = c.createOscillator(), g = c.createGain();
+      const lfo = c.createOscillator(), lg = c.createGain();
+      lfo.connect(lg); lg.connect(o.frequency);
+      o.connect(g); g.connect(c.destination);
+
+      o.type = 'sine';
+      o.frequency.setValueAtTime(800, t);
+      o.frequency.exponentialRampToValueAtTime(120, t + 0.70);
+
+      // частое вибрато как дрожание шарика
+      lfo.type = 'sine';
+      lfo.frequency.setValueAtTime(28, t);
+      lfo.frequency.linearRampToValueAtTime(8, t + 0.70);
+      lg.gain.setValueAtTime(120, t);
+      lg.gain.exponentialRampToValueAtTime(5, t + 0.70);
+
+      g.gain.setValueAtTime(0.22, t);
+      g.gain.exponentialRampToValueAtTime(0.001, t + 0.74);
+
+      lfo.start(t); lfo.stop(t + 0.75);
+      o.start(t); o.stop(t + 0.75);
+      return 0.75;
+    }
+  };
+
+  function play(n, btn) {
+    const c = new (window.AudioContext || window.webkitAudioContext)();
+    const dur = sounds[n](c, c.currentTime);
+    btn.classList.add('playing');
+    setTimeout(() => btn.classList.remove('playing'), dur * 1000 + 80);
+  }
+  </script>
+</body>
+</html>

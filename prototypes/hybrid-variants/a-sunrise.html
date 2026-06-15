@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>andrey.eth — pm · gm</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geologica:wght,SLNT@300..700,-12..0&family=JetBrains+Mono:wght@300;400;500;600&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0F0A06;
+    --panel: #1A120C;
+    --panel-hi: #251A12;
+    --ink: #FAEDD4;
+    --ink-dim: #8B7355;
+    --ink-mute: #4A3F30;
+    --border: #2A1F15;
+    --border-hi: #3A2B1F;
+    --amber: #FFB23D;
+    --coral: #FF6B5B;
+    --honey: #F4D03F;
+    --rose: #FF4D8B;
+    --grad: linear-gradient(135deg, #FFB23D 0%, #FF6B5B 55%, #F4D03F 100%);
+    --grad-flat: linear-gradient(135deg, #FFB23D, #FF6B5B);
+  }
+
+  *{ box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body{
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Geologica', sans-serif;
+    font-weight: 400;
+    font-size: 15px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  body::before{
+    content:"";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background:
+      radial-gradient(ellipse 60% 35% at 20% 0%, rgba(255,178,61,0.15), transparent 60%),
+      radial-gradient(ellipse 55% 35% at 90% 20%, rgba(255,107,91,0.10), transparent 60%),
+      radial-gradient(ellipse 40% 30% at 50% 95%, rgba(244,208,63,0.07), transparent 60%);
+  }
+  body::after{
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background-image:
+      linear-gradient(to right, rgba(255,220,180,0.015) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255,220,180,0.015) 1px, transparent 1px);
+    background-size: 80px 80px;
+    mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+    -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+  }
+
+  .spark{
+    position: fixed;
+    font-size: 18px;
+    z-index: 1;
+    pointer-events: none;
+    opacity: 0.5;
+    animation: drift 8s ease-in-out infinite;
+  }
+  .spark.s1{ top: 18%; left: 6%; animation-delay: 0s; color: var(--amber); }
+  .spark.s2{ top: 60%; right: 8%; animation-delay: 3s; color: var(--coral); }
+  .spark.s3{ top: 85%; left: 14%; animation-delay: 5s; color: var(--honey); }
+  @keyframes drift{
+    0%, 100%{ transform: translateY(0) rotate(0deg); opacity: 0.4; }
+    50%{ transform: translateY(-14px) rotate(20deg); opacity: 0.75; }
+  }
+
+  .topbar{
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    background: rgba(15,10,6,0.7);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+  }
+  .topbar-l, .topbar-r{ display: flex; align-items: center; gap: 16px; }
+  .status{
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--ink-dim);
+  }
+  .dot{
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--amber);
+    box-shadow: 0 0 12px var(--amber), 0 0 4px var(--amber);
+    animation: pulse 2.4s ease-in-out infinite;
+  }
+  @keyframes pulse{
+    0%, 100%{ opacity: 1; transform: scale(1); }
+    50%{ opacity: 0.55; transform: scale(0.8); }
+  }
+  .status b{ color: var(--amber); font-weight: 500; letter-spacing: 0.04em; }
+  .gm-pill{
+    font-family: 'Caveat', cursive;
+    font-weight: 700;
+    font-size: 16px;
+    color: var(--honey);
+    letter-spacing: 0.02em;
+  }
+  .gm-pill::before{ content: "🌅 "; font-family: sans-serif; font-size: 13px; }
+  .wallet{
+    color: var(--ink-dim);
+    padding: 6px 12px;
+    border: 1px solid var(--border-hi);
+    border-radius: 999px;
+    background: rgba(255,200,140,0.02);
+    transition: border-color .2s, color .2s;
+  }
+  .wallet:hover{ color: var(--amber); border-color: var(--amber); }
+
+  .page{
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 56px 28px 80px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .hero{ padding: 24px 0 64px; }
+  .pretag{
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 14px;
+    border: 1px solid var(--border-hi);
+    border-radius: 999px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    color: var(--ink-dim);
+    letter-spacing: 0.04em;
+    margin-bottom: 36px;
+    background: rgba(255,200,140,0.015);
+  }
+  .pretag .micro{
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--coral);
+    box-shadow: 0 0 8px var(--coral);
+  }
+
+  .name{
+    font-family: 'Geologica', sans-serif;
+    font-weight: 600;
+    font-size: clamp(64px, 9.5vw, 152px);
+    line-height: 0.95;
+    letter-spacing: -0.045em;
+    color: var(--ink);
+    position: relative;
+  }
+  .name .last{
+    display: block;
+    background: var(--grad);
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    font-weight: 500;
+    animation: grad-shift 7s ease-in-out infinite;
+  }
+  .name .sparkle{
+    position: absolute;
+    top: -12px;
+    right: -2vw;
+    font-size: clamp(24px, 3vw, 44px);
+    animation: spin 6s linear infinite;
+    color: var(--coral);
+  }
+  @keyframes spin{
+    from{ transform: rotate(0deg); }
+    to{ transform: rotate(360deg); }
+  }
+  @keyframes grad-shift{
+    0%, 100%{ background-position: 0% 50%; }
+    50%{ background-position: 100% 50%; }
+  }
+
+  .tagline{
+    max-width: 56ch;
+    margin-top: 28px;
+    font-size: 22px;
+    line-height: 1.45;
+    color: var(--ink-dim);
+    font-weight: 300;
+  }
+  .tagline em{ color: var(--ink); font-style: normal; font-weight: 500; }
+  .tagline u{ text-decoration: none; color: var(--amber); font-weight: 500; }
+  .tagline .scribble{
+    font-family: 'Caveat', cursive;
+    font-weight: 700;
+    font-style: italic;
+    color: var(--coral);
+    font-size: 26px;
+    margin-left: 4px;
+  }
+
+  .quick{
+    margin-top: 44px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  .qcell{
+    background: var(--panel);
+    padding: 22px 24px;
+    transition: background .25s;
+  }
+  .qcell:hover{ background: var(--panel-hi); }
+  .qcell .l{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+    margin-bottom: 10px;
+  }
+  .qcell .v{
+    font-family: 'Geologica', sans-serif;
+    font-weight: 500;
+    font-size: 28px;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+  }
+  .qcell .v.m{ color: var(--amber); }
+  .qcell .v.c{ color: var(--coral); }
+  .qcell .s{
+    margin-top: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-dim);
+  }
+
+  .sec{ margin-top: 96px; }
+  .sec-head{
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    padding-bottom: 18px;
+    margin-bottom: 28px;
+    border-bottom: 1px solid var(--border);
+  }
+  .sec-head h2{
+    font-family: 'Geologica', sans-serif;
+    font-weight: 500;
+    font-size: 22px;
+    letter-spacing: -0.012em;
+    color: var(--ink);
+  }
+  .sec-head .right{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    color: var(--ink-mute);
+    letter-spacing: 0.08em;
+  }
+  .sec-head .right b{ color: var(--ink-dim); font-weight: 400; }
+  .sec-head .right em{ color: var(--amber); font-style: normal; }
+
+  .work-list{ display: grid; gap: 16px; }
+  .card{
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px 32px;
+    background: linear-gradient(180deg, rgba(255,200,140,0.012), transparent);
+    transition: border-color .25s, background .25s, transform .25s;
+    position: relative;
+    overflow: hidden;
+  }
+  .card::before{
+    content:"";
+    position: absolute;
+    inset: 0;
+    border-radius: 16px;
+    padding: 1px;
+    background: var(--grad);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+            mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+            mask-composite: exclude;
+    opacity: 0;
+    transition: opacity .25s;
+    pointer-events: none;
+  }
+  .card:hover{ transform: translateY(-2px); }
+  .card:hover::before{ opacity: 0.7; }
+
+  .card-top{
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 6px;
+  }
+  .card-title{
+    font-family: 'Geologica', sans-serif;
+    font-weight: 500;
+    font-size: 30px;
+    letter-spacing: -0.018em;
+    line-height: 1.1;
+    color: var(--ink);
+  }
+  .card-title a{
+    color: inherit; text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: border-color .2s, color .2s;
+  }
+  .card-title a:hover{ color: var(--amber); border-color: var(--amber); }
+  .card-title .arrow{
+    margin-left: 8px;
+    font-size: 18px;
+    color: var(--ink-mute);
+    transition: transform .2s, color .2s;
+    display: inline-block;
+  }
+  .card-title a:hover .arrow{ transform: translate(2px, -2px); color: var(--amber); }
+  .card-meta{ display: flex; gap: 8px; align-items: center; }
+  .pill{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.08em;
+    color: var(--ink-dim);
+    padding: 4px 10px;
+    border: 1px solid var(--border-hi);
+    border-radius: 999px;
+    background: rgba(255,200,140,0.015);
+  }
+  .pill.live{ color: var(--amber); border-color: rgba(255,178,61,0.4); background: rgba(255,178,61,0.08); }
+  .pill.wip{ color: var(--coral); border-color: rgba(255,107,91,0.4); background: rgba(255,107,91,0.08); }
+  .pill.shipped{ color: var(--honey); border-color: rgba(244,208,63,0.4); background: rgba(244,208,63,0.08); }
+
+  .card-role{
+    font-size: 14px;
+    color: var(--ink-dim);
+    margin: 6px 0 18px;
+  }
+  .card-desc{
+    font-size: 15.5px;
+    line-height: 1.6;
+    color: var(--ink-dim);
+    max-width: 70ch;
+  }
+  .card-desc strong{ color: var(--ink); font-weight: 500; }
+  .card-desc .scribble{
+    font-family: 'Caveat', cursive;
+    font-style: italic;
+    font-weight: 700;
+    color: var(--coral);
+    font-size: 18px;
+  }
+
+  .stats-row{
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px dashed var(--border-hi);
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 4px 12px;
+  }
+  .stat .l{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+    margin-bottom: 4px;
+  }
+  .stat .v{
+    font-family: 'Geologica', sans-serif;
+    font-weight: 500;
+    font-size: 18px;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+  }
+  .stat .v.m{ color: var(--amber); }
+  .stat .v.c{ color: var(--coral); }
+  .stat .v.p{ color: var(--honey); }
+
+  .prior{
+    display: grid;
+    gap: 0;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  .prior .row{
+    padding: 18px 24px;
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    gap: 24px;
+    align-items: baseline;
+    border-bottom: 1px solid var(--border);
+    background: var(--panel);
+    transition: background .2s;
+  }
+  .prior .row:last-child{ border-bottom: none; }
+  .prior .row:hover{ background: var(--panel-hi); }
+  .prior .y{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--amber);
+    letter-spacing: 0.06em;
+  }
+  .prior .t{ font-size: 15.5px; color: var(--ink-dim); }
+  .prior .t b{ color: var(--ink); font-weight: 500; }
+
+  .caps{
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+  }
+  .cap-card{
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 22px 24px;
+    background: var(--panel);
+  }
+  .cap-card h4{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--amber);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .cap-card h4::before{
+    content: ""; width: 6px; height: 6px; border-radius: 50%;
+    background: var(--amber);
+    box-shadow: 0 0 6px var(--amber);
+  }
+  .cap-card:nth-child(2) h4{ color: var(--coral); }
+  .cap-card:nth-child(2) h4::before{ background: var(--coral); box-shadow: 0 0 6px var(--coral); }
+  .cap-card:nth-child(3) h4{ color: var(--honey); }
+  .cap-card:nth-child(3) h4::before{ background: var(--honey); box-shadow: 0 0 6px var(--honey); }
+  .cap-card:nth-child(4) h4{ color: var(--rose); }
+  .cap-card:nth-child(4) h4::before{ background: var(--rose); box-shadow: 0 0 6px var(--rose); }
+
+  .chips{ display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    padding: 4px 10px;
+    border: 1px solid var(--border-hi);
+    border-radius: 6px;
+    color: var(--ink-dim);
+    background: rgba(255,200,140,0.015);
+  }
+
+  .vibe{
+    margin: 64px 0 0;
+    border: 1px dashed var(--border-hi);
+    border-radius: 14px;
+    padding: 24px 28px;
+    background: linear-gradient(135deg, rgba(255,178,61,0.05), rgba(255,107,91,0.05));
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .vibe-l{
+    font-family: 'Caveat', cursive;
+    font-weight: 700;
+    font-size: 26px;
+    color: var(--ink);
+    line-height: 1.1;
+  }
+  .vibe-l span{
+    background: var(--grad-flat);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .vibe-r{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--ink-dim);
+    letter-spacing: 0.06em;
+  }
+
+  .contact-shell{
+    margin-top: 64px;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 48px;
+    background:
+      radial-gradient(ellipse 60% 100% at 0% 0%, rgba(255,178,61,0.1), transparent 60%),
+      radial-gradient(ellipse 60% 100% at 100% 100%, rgba(255,107,91,0.1), transparent 60%),
+      var(--panel);
+    position: relative;
+    overflow: hidden;
+  }
+  .contact-shell h2{
+    font-family: 'Geologica', sans-serif;
+    font-weight: 500;
+    font-size: clamp(36px, 5vw, 56px);
+    letter-spacing: -0.025em;
+    line-height: 1.05;
+    margin-bottom: 8px;
+    color: var(--ink);
+  }
+  .contact-shell h2 span{
+    background: var(--grad);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .contact-shell .lede{
+    color: var(--ink-dim);
+    font-size: 17px;
+    max-width: 50ch;
+    margin-bottom: 32px;
+  }
+  .contact-shell .lede .scribble{
+    font-family: 'Caveat', cursive;
+    font-weight: 700;
+    color: var(--honey);
+    font-size: 22px;
+  }
+  .contact-grid{
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  .contact-grid a{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 20px;
+    border: 1px solid var(--border-hi);
+    border-radius: 12px;
+    background: rgba(255,200,140,0.02);
+    color: var(--ink);
+    text-decoration: none;
+    transition: border-color .2s, background .2s;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+  }
+  .contact-grid a:hover{ border-color: var(--amber); background: rgba(255,178,61,0.05); }
+  .contact-grid a .lbl{
+    font-size: 11px;
+    color: var(--ink-mute);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+    display: block;
+  }
+  .contact-grid a .val{ font-size: 15px; color: var(--ink); }
+  .contact-grid a:hover .val{ color: var(--amber); }
+
+  .cta-row{
+    margin-top: 36px;
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .btn{
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 22px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    letter-spacing: 0.06em;
+    text-decoration: none;
+    border-radius: 10px;
+    border: 1px solid var(--border-hi);
+    color: var(--ink);
+    background: rgba(255,200,140,0.02);
+    transition: all .2s;
+  }
+  .btn:hover{ border-color: var(--ink); background: rgba(255,200,140,0.06); }
+  .btn.primary{
+    background: var(--grad-flat);
+    color: #200E03;
+    border-color: transparent;
+    font-weight: 600;
+  }
+  .btn.primary:hover{ filter: brightness(1.08); transform: translateY(-1px); }
+
+  .foot{
+    margin-top: 64px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    color: var(--ink-mute);
+  }
+  .foot .wagmi{
+    font-family: 'Caveat', cursive;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--amber);
+    letter-spacing: 0;
+    text-transform: none;
+  }
+  .lang a{
+    color: var(--ink-mute);
+    text-decoration: none;
+    padding: 4px 10px;
+    border: 1px solid transparent;
+    border-radius: 6px;
+  }
+  .lang a.active{ color: var(--amber); border-color: var(--border-hi); background: rgba(255,178,61,0.05); }
+
+  @media (max-width: 880px){
+    .topbar{ padding: 12px 18px; flex-wrap: wrap; }
+    .page{ padding: 36px 18px 60px; }
+    .quick{ grid-template-columns: repeat(2, 1fr); }
+    .caps{ grid-template-columns: 1fr; }
+    .contact-grid{ grid-template-columns: 1fr; }
+    .contact-shell{ padding: 32px 24px; }
+    .prior .row{ grid-template-columns: 1fr; gap: 6px; }
+    .name .sparkle{ display: none; }
+  }
+
+  @keyframes rise{
+    from{ opacity: 0; transform: translateY(20px); }
+    to{ opacity: 1; transform: translateY(0); }
+  }
+  .pretag, .name, .tagline, .quick, .sec, .vibe, .contact-shell, .foot{
+    animation: rise .9s cubic-bezier(.2,.7,.2,1) both;
+  }
+  .name{ animation-delay: .05s; }
+  .tagline{ animation-delay: .15s; }
+  .quick{ animation-delay: .25s; }
+  .sec.s2{ animation-delay: .1s; }
+  .sec.s3{ animation-delay: .15s; }
+  .sec.s4{ animation-delay: .2s; }
+  .vibe{ animation-delay: .25s; }
+</style>
+</head>
+<body>
+
+<span class="spark s1">✦</span>
+<span class="spark s2">✧</span>
+<span class="spark s3">✦</span>
+
+<div class="topbar">
+  <div class="topbar-l">
+    <span class="status"><span class="dot"></span><b>open_to_work</b></span>
+    <span class="gm-pill">gm anon</span>
+  </div>
+  <div class="topbar-r">
+    <span class="wallet">0x..a9d4</span>
+  </div>
+</div>
+
+<main class="page">
+
+  <section class="hero">
+    <div class="pretag">
+      <span class="micro"></span>
+      product_manager · web3 · montenegro
+    </div>
+    <h1 class="name">
+      Andrey
+      <span class="last">Evdokimov<span class="sparkle">✦</span></span>
+    </h1>
+    <p class="tagline">
+      Shipped a Telegram mini-app to <u>9,680 users</u> on TON,
+      <em>managed a 7-dev team on a $400K Web3 build</em>,
+      and now coding my own job-search agent with Claude Code <span class="scribble">— wagmi</span>
+    </p>
+
+    <div class="quick">
+      <div class="qcell"><div class="l">years_in</div><div class="v m">05</div><div class="s">since 2021</div></div>
+      <div class="qcell"><div class="l">projects</div><div class="v">17+</div><div class="s">shipped / managed</div></div>
+      <div class="qcell"><div class="l">largest_budget</div><div class="v m">$400K</div><div class="s">7-dev team</div></div>
+      <div class="qcell"><div class="l">chains_worked</div><div class="v c">9</div><div class="s">TON · EVM · SOL …</div></div>
+    </div>
+  </section>
+
+  <section class="sec s2">
+    <div class="sec-head">
+      <h2>Selected work</h2>
+      <div class="right"><b>03</b> entries · <em>sorted: desc</em></div>
+    </div>
+
+    <div class="work-list">
+
+      <article class="card">
+        <div class="card-top">
+          <h3 class="card-title"><a href="https://t.me/themagicpot">magic_pot<span class="arrow">↗</span></a></h3>
+          <div class="card-meta">
+            <span class="pill live">live</span>
+            <span class="pill">2024–2025</span>
+            <span class="pill">founder</span>
+          </div>
+        </div>
+        <div class="card-role">Decentralised lottery on TON — Telegram Mini App + smart contract</div>
+        <p class="card-desc">
+          Shipped a fully on-chain mini-game inside Telegram from zero to a working
+          community on a <strong>$15K budget</strong>. Led frontend, backend, smart
+          contracts, DevOps and an illustrator. Pitched at TON Accelerator on
+          Twitter Spaces — received a $5K grant <span class="scribble">✦</span>
+        </p>
+        <div class="stats-row">
+          <div class="stat"><div class="l">users</div><div class="v m">9,680</div></div>
+          <div class="stat"><div class="l">mau</div><div class="v">~1,000</div></div>
+          <div class="stat"><div class="l">grant</div><div class="v m">$5,000</div></div>
+          <div class="stat"><div class="l">budget</div><div class="v">$15K</div></div>
+          <div class="stat"><div class="l">partners</div><div class="v p">20+</div></div>
+          <div class="stat"><div class="l">chain</div><div class="v c">TON</div></div>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-top">
+          <h3 class="card-title">oqtacore.pm()</h3>
+          <div class="card-meta">
+            <span class="pill shipped">delivered</span>
+            <span class="pill">2025–2026</span>
+            <span class="pill">analyst · pm</span>
+          </div>
+        </div>
+        <div class="card-role">Discovery &amp; delivery — DeFi, RWA, AI, mining</div>
+        <p class="card-desc">
+          Ran 13 discovery engagements — from JTBD interviews to scopes, budgets,
+          roadmaps. Owned the agency’s largest contract — a mining monitoring
+          platform with a <strong>7-developer team</strong> and a <strong>$400K budget</strong>.
+          Closed three upsells including a $200K follow-up.
+        </p>
+        <div class="stats-row">
+          <div class="stat"><div class="l">discoveries</div><div class="v m">13</div></div>
+          <div class="stat"><div class="l">team_led</div><div class="v">7 devs</div></div>
+          <div class="stat"><div class="l">largest</div><div class="v m">$400K</div></div>
+          <div class="stat"><div class="l">upsells</div><div class="v p">3</div></div>
+          <div class="stat"><div class="l">follow_up</div><div class="v c">+$200K</div></div>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-top">
+          <h3 class="card-title">ai_jobsearch()</h3>
+          <div class="card-meta">
+            <span class="pill wip">building</span>
+            <span class="pill">2026</span>
+            <span class="pill">side project</span>
+          </div>
+        </div>
+        <div class="card-role">A personal Claude Code agent for the rest of this job hunt</div>
+        <p class="card-desc">
+          Telegram channels parsed with Telethon, vacancies auto-scored against my
+          profile, qualifying ones land in a CSV with tailored CV recommendations
+          and a draft outreach message — orchestrated as a daily Claude Code skill
+          chain. <strong>This site itself came out of that workspace.</strong>
+        </p>
+        <div class="stats-row">
+          <div class="stat"><div class="l">stack</div><div class="v">Python · Telethon</div></div>
+          <div class="stat"><div class="l">orchestration</div><div class="v c">Claude Code</div></div>
+          <div class="stat"><div class="l">status</div><div class="v m">shipping ✨</div></div>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <section class="sec s3">
+    <div class="sec-head">
+      <h2>Before that</h2>
+      <div class="right"><b>2021</b> — 2024</div>
+    </div>
+
+    <div class="prior">
+      <div class="row">
+        <span class="y">2022 — 2024</span>
+        <span class="t"><b>Business Developer</b>, GGEM Launcher — 30+ GameFi partnerships, white paper, tokenomics design</span>
+      </div>
+      <div class="row">
+        <span class="y">2021 — 2024</span>
+        <span class="t"><b>Independent researcher</b> — Dune dashboards and on-chain research across TON · Ethereum · Solana · Avalanche · Polygon · BSC · Arbitrum · Berachain · Oasys</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec s4">
+    <div class="sec-head">
+      <h2>Capabilities</h2>
+      <div class="right">tagged · grouped</div>
+    </div>
+
+    <div class="caps">
+      <div class="cap-card">
+        <h4>product</h4>
+        <div class="chips">
+          <span class="chip">AARRR</span><span class="chip">RICE</span><span class="chip">JTBD</span>
+          <span class="chip">roadmaps</span><span class="chip">user stories</span>
+          <span class="chip">scrum</span><span class="chip">kanban</span>
+          <span class="chip">notion</span><span class="chip">jira</span>
+        </div>
+      </div>
+      <div class="cap-card">
+        <h4>web3</h4>
+        <div class="chips">
+          <span class="chip">DeFi</span><span class="chip">tokenomics</span><span class="chip">NFT</span>
+          <span class="chip">L1 / L2</span><span class="chip">RWA</span><span class="chip">smart contracts</span>
+          <span class="chip">TON</span><span class="chip">EVM</span><span class="chip">Solana</span>
+        </div>
+      </div>
+      <div class="cap-card">
+        <h4>analytics</h4>
+        <div class="chips">
+          <span class="chip">SQL</span><span class="chip">Dune Analytics</span>
+          <span class="chip">on-chain research</span><span class="chip">Python (basic)</span>
+        </div>
+      </div>
+      <div class="cap-card">
+        <h4>ai &amp; automation</h4>
+        <div class="chips">
+          <span class="chip">Claude Code</span><span class="chip">LLM agents</span>
+          <span class="chip">n8n</span><span class="chip">prompts</span><span class="chip">Telethon</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="vibe">
+    <div class="vibe-l">probably the only PM <span>shipping his own agent</span> as a side project</div>
+    <div class="vibe-r">// vibe check ✦ ngmi without it</div>
+  </div>
+
+  <section class="contact-shell">
+    <h2>Let's <span>connect</span>.</h2>
+    <p class="lede">
+      Looking for a PM role at a Web3 startup — early stage preferred, remote, EU/MSK/UAE.
+      Earliest start in two weeks. <span class="scribble">DM is fastest →</span>
+    </p>
+
+    <div class="contact-grid">
+      <a href="https://t.me/en0usiazo"><div><span class="lbl">Telegram (best)</span><span class="val">@en0usiazo</span></div><span>↗</span></a>
+      <a href="mailto:s4ne.c4ke@gmail.com"><div><span class="lbl">Email</span><span class="val">s4ne.c4ke@gmail.com</span></div><span>↗</span></a>
+      <a href="https://www.linkedin.com/in/andrey-evdokimov-596345246/"><div><span class="lbl">LinkedIn</span><span class="val">andrey-evdokimov</span></div><span>↗</span></a>
+      <a href="https://dune.com/wonderfulsecret/castaways"><div><span class="lbl">Onchain work</span><span class="val">dune.com/wonderfulsecret</span></div><span>↗</span></a>
+    </div>
+
+    <div class="cta-row">
+      <a class="btn primary" href="#">↓ download_cv.pdf</a>
+      <a class="btn" href="#">→ book a 30-min call</a>
+    </div>
+  </section>
+
+  <div class="foot">
+    <span>built in claude code · <span class="wagmi">first light · wagmi</span> · MMXXVI</span>
+    <div class="lang">
+      <a href="#" class="active">EN</a>
+      <a href="#">RU</a>
+    </div>
+  </div>
+
+</main>
+</body>
+</html>
