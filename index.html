@@ -1636,17 +1636,22 @@
       display: none;
     }
 
-    /* Hero → Selected work gap: 64+64px on desktop → 32+36px on mobile */
+    /* Hero → Selected work gap: 64+64px on desktop → 16+24px on mobile */
     .hero {
-      padding-bottom: 32px;
+      padding-bottom: 16px;
     }
     .sec {
-      margin-top: 36px;
+      margin-top: 24px;
     }
 
     /* "sorted: desc" wraps to its own line */
     .sec-head .right em {
       display: block;
+    }
+
+    /* Align both sides to the top, not baseline */
+    .sec-head {
+      align-items: flex-start;
     }
   }
 
@@ -1721,7 +1726,7 @@
         </p>
       </div>
       <div class="hero-id-card">
-        <img src="assets/photo.png" alt="Andrey Evdokimov">
+        <img src="assets/photo.jpg" alt="Andrey Evdokimov">
         <div class="hero-id-card-footer">
           <div class="slogan-label lang-en">Product over promises.</div>
           <div class="slogan-label lang-ru">Продукт важнее обещаний.</div>
