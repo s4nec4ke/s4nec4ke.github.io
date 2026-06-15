@@ -451,7 +451,7 @@
     transition: opacity .25s;
     pointer-events: none;
   }
-  .card:hover{ transform: translateY(-2px); }
+  .card:hover{ transform: translateY(-2px); z-index: 1; }
   .card:hover::before{ opacity: 0.7; }
 
   .card-top{
@@ -1478,7 +1478,6 @@
     object-position: bottom;
     position: relative;
     bottom: -44px;
-    opacity: 0.85;
     filter: drop-shadow(0 4px 12px rgba(0,0,0,0.5));
     transform-origin: bottom center;
     will-change: transform;
@@ -1500,7 +1499,7 @@
   }
   @keyframes gnome-intro {
     from { transform: translateY(100px); opacity: 0; }
-    to   { transform: translateY(0);     opacity: 0.85; }
+    to   { transform: translateY(0);     opacity: 1; }
   }
   .gnome-walk.flying { animation-play-state: paused; }
   .gnome-walk.flying .corner-gnome {
@@ -1520,13 +1519,158 @@
   .stat-cta .l { color: rgba(0,245,160,.55); }
   .stat-cta .v { color: var(--mint); font-size: 19px; transition: text-shadow .25s; }
   .card:hover .stat-cta .v { text-shadow: 0 0 18px rgba(0,245,160,.55); }
-  .stat-cta-arr { display: inline-block; transition: transform .3s cubic-bezier(.2,.7,.2,1); }
-  .card:hover .stat-cta-arr { transform: translateX(6px); }
+  .stat-cta-arr { display: inline-block; position: relative; left: 0; transition: left .3s cubic-bezier(.2,.7,.2,1); }
+  .card:hover .stat-cta-arr { left: 6px; }
 
   /* ── LANGUAGE SWITCH ── */
   .lang-ru { display: none; }
   html[lang="ru"] .lang-ru { display: revert; }
   html[lang="ru"] .lang-en { display: none; }
+
+  /* ── STEP 1: TYPOGRAPHY — small phones ≤480px ── */
+  @media (max-width: 480px) {
+    /* Hero name: base clamp has a 64px floor — way too big at 375–390px.
+       Override so it scales from ~44px at 350px up to ~60px at 480px. */
+    .name {
+      font-size: clamp(44px, 12.5vw, 62px);
+      letter-spacing: -0.035em;
+    }
+
+    /* Tagline: 22px is readable but tight next to margins — pull to 18px */
+    .tagline {
+      font-size: 18px;
+      margin-top: 20px;
+    }
+
+    /* Work card titles: 30px is desktop scale, 22px reads fine at phone width */
+    .card-title {
+      font-size: 22px;
+      letter-spacing: -0.012em;
+    }
+
+    /* Contact shell heading: its clamp floor is 36px which is fine, but tighten margin */
+    .contact-shell h2 {
+      font-size: clamp(30px, 8vw, 42px);
+    }
+  }
+
+  /* ── STEP 2: TOPBAR — small phones ≤480px ── */
+  @media (max-width: 480px) {
+    /* Slightly tighter horizontal padding */
+    .topbar {
+      padding: 10px 16px;
+      gap: 10px;
+    }
+
+    /* Lang buttons: bump up tap target from ~14px to 36px minimum */
+    .lang-btn {
+      padding: 7px 11px;
+      min-height: 36px;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    /* Dot + label gap tighter on narrow screens */
+    .status {
+      gap: 6px;
+    }
+  }
+
+  /* ── STEP 3: QUICK CELLS — small phones ≤480px ── */
+  @media (max-width: 480px) {
+    /* Less top margin — hero name is already large, reduce white space */
+    .quick {
+      margin-top: 32px;
+    }
+
+    /* Tighter cell padding: was 22px 24px, inner area at 2-col is only ~128px */
+    .qcell {
+      padding: 16px 18px;
+    }
+
+    /* Scale down the big metric number from 28px */
+    .qcell .v {
+      font-size: 22px;
+    }
+
+    /* Tighten spacing between label and value */
+    .qcell .l {
+      margin-bottom: 6px;
+    }
+
+    /* Tighten spacing below value */
+    .qcell .s {
+      margin-top: 5px;
+    }
+  }
+
+  /* ── STEP 4: WORK CARDS — small phones ≤480px ── */
+  @media (max-width: 480px) {
+    /* Less gap between cards, less outer padding per card */
+    .work-list {
+      gap: 12px;
+    }
+    .card {
+      padding: 20px 20px;
+    }
+
+    /* Less gap between title and pills when they wrap */
+    .card-top {
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+
+    /* Description text: 15.5px → 14.5px for readability at narrow width */
+    .card-desc {
+      font-size: 14.5px;
+    }
+
+    /* Stats row: tighter top spacing */
+    .stats-row {
+      margin-top: 18px;
+      padding-top: 14px;
+    }
+
+    /* Hide "details →" cell — whole card is tappable on mobile */
+    .stat-cta {
+      display: none;
+    }
+
+    /* Hero → Selected work gap: 64+64px on desktop → 32+36px on mobile */
+    .hero {
+      padding-bottom: 32px;
+    }
+    .sec {
+      margin-top: 36px;
+    }
+  }
+
+  /* ── STEP 5: GNOME — mobile corner mode ≤480px ── */
+  @media (max-width: 480px) {
+    /* Kill travel, park at bottom-right */
+    .gnome-walk {
+      left: auto;
+      right: 16px;
+      animation: none;
+    }
+
+    /* Smaller size, more visible above edge, replace waddle with periodic twitch */
+    .corner-gnome {
+      width: 52px;
+      height: 52px;
+      bottom: -38px;
+      animation: gnome-mobile-twitch 3s ease-in-out infinite;
+    }
+
+    @keyframes gnome-mobile-twitch {
+      0%,  78% { transform: translateY(0)     rotate(0deg);  }
+      82%       { transform: translateY(-11px) rotate(-7deg); }
+      86%       { transform: translateY(-8px)  rotate(6deg);  }
+      90%       { transform: translateY(-10px) rotate(-4deg); }
+      94%       { transform: translateY(-4px)  rotate(2deg);  }
+      98%, 100% { transform: translateY(0)     rotate(0deg);  }
+    }
+  }
 </style>
 </head>
 <body>
@@ -2265,6 +2409,7 @@
       walk.classList.remove('gnome-intro');
     }, { once: true });
   }
+
   startIntro();
 
   /* preload mp3 */
@@ -2316,7 +2461,7 @@
         walk.offsetHeight; /* force reflow to restart */
         walk.style.animation = '';
         startIntro();
-      }, 5000);
+      }, 7000);
     }, { once: true });
   });
 })();
