@@ -1598,9 +1598,9 @@
       margin-bottom: 6px;
     }
 
-    /* Tighten spacing below value */
+    /* Hide subtitles ("since 2021", "shipped / managed" etc.) — redundant at small size */
     .qcell .s {
-      margin-top: 5px;
+      display: none;
     }
   }
 
@@ -1642,6 +1642,11 @@
     }
     .sec {
       margin-top: 36px;
+    }
+
+    /* "sorted: desc" wraps to its own line */
+    .sec-head .right em {
+      display: block;
     }
   }
 
