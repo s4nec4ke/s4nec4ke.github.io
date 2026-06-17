@@ -198,7 +198,24 @@
     overflow: hidden;
     text-overflow: ellipsis;
   }
-  @media(max-width:720px){ .hero-id-card{ display: none; } }
+  @media(max-width:720px){
+    .hero { position: relative; }
+    .hero-id-card {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      margin-top: 0;
+    }
+    .hero-id-card img {
+      aspect-ratio: 1;
+      object-position: center 5%;
+    }
+    .hero-id-card-footer { display: none; }
+    .name { padding-right: 74px; }
+  }
 
   /* ── QUICK STATS ── */
   .quick {
