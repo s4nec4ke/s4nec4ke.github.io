@@ -1297,7 +1297,7 @@
       <a href="https://t.me/en0ousiazo" target="_blank" rel="noopener noreferrer">Telegram</a>
       <a href="https://www.linkedin.com/in/andrey-evdokimov-596345246/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
       <a href="https://calendly.com/evdokimov_andrey/introduction" target="_blank" rel="noopener">Calendly</a>
-      <a href="assets/cv.pdf" download class="cb-cv" data-en="download CV ↓" data-ru="скачать CV ↓">download CV ↓</a>
+      <a href="assets/Andrey Web3 PM (en).pdf" download class="cb-cv" data-en="download CV ↓" data-ru="скачать CV ↓" data-href-en="assets/Andrey Web3 PM (en).pdf" data-href-ru="assets/Андрей Web3 PM (ru).pdf">download CV ↓</a>
     </div>
   </section>
 
@@ -1478,7 +1478,7 @@
       <a href="https://t.me/en0ousiazo" target="_blank" rel="noopener noreferrer">Telegram</a>
       <a href="https://www.linkedin.com/in/andrey-evdokimov-596345246/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
       <a href="https://calendly.com/evdokimov_andrey/introduction" target="_blank" rel="noopener">Calendly</a>
-      <a href="assets/cv.pdf" download class="cb-cv" data-en="download CV ↓" data-ru="скачать CV ↓">download CV ↓</a>
+      <a href="assets/Andrey Web3 PM (en).pdf" download class="cb-cv" data-en="download CV ↓" data-ru="скачать CV ↓" data-href-en="assets/Andrey Web3 PM (en).pdf" data-href-ru="assets/Андрей Web3 PM (ru).pdf">download CV ↓</a>
     </div>
   </section>
 
@@ -1895,6 +1895,9 @@ function applyLang(lang) {
   document.documentElement.lang = lang;
   document.querySelectorAll('[data-en]').forEach(el => {
     el.innerHTML = lang === 'ru' ? (el.dataset.ru || el.dataset.en) : el.dataset.en;
+  });
+  document.querySelectorAll('[data-href-en]').forEach(el => {
+    el.href = lang === 'ru' ? el.dataset.hrefRu : el.dataset.hrefEn;
   });
   document.querySelectorAll('[data-trans]').forEach(el => {
     const key = el.dataset.trans;
